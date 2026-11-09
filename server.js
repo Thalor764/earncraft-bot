@@ -1,4 +1,5 @@
-/const Database = require('better-sqlite3');
+const Database = require('better-sqlite3');
+
 * ============================================================================
  *  EARNCRAFT PRO — COMPLETE BACKEND
  *  Node.js + Express + Telegram Bot + Auto-creating SQLite database
@@ -12,8 +13,8 @@
 const CONFIG = {
   BOT_TOKEN: '9285520861:AAF4MZeRVn4nzO9zfhmwddpq1PZOiWof-N8',
   BOT_USERNAME: 'EarnCraftEtBot',
-  WEBAPP_URL: 'https://your-deployed-domain.com',
-  ADMIN_TELEGRAM_ID:6431033307 ,
+WEBAPP_URL: 'https://onrender.com',
+ ADMIN_TELEGRAM_ID: '6431033307',
   ADSGRAM_BLOCK_ID: 'PASTE_YOUR_ADSGRAM_BLOCK_ID_HERE',
   PORT: process.env.PORT || 3000,
   // ---- Official channel join reward ----
