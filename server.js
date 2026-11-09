@@ -367,18 +367,7 @@ app.get('/api/config-extended', (req, res) => {
   return user;
 }
 
-/* ---- ADDED: post-spin commission hook (parallel route, additive only) ---- */
-app.post('/api/spin/commission', auth, (req, res) => {
-  try {
-    const amount = Number(req.body.amount || 0);
-    if (amount > 0) awardReferralCommissionEarnCraft(req.user.telegram_id, 'spin', amount);
-    res.json({ ok: true });
-  } catch (err) {
-    console.error('[SPIN COMMISSION ERROR]', err);
-    res.status(500).json({ ok: false, error: 'SPIN_COMM_FAILED' });
-  }
-});
-/* ---- END ADDED ---- */
+
 function publicUser(u) {
   return {
     telegramId: u.telegram_id,
@@ -430,6 +419,18 @@ function auth(req, res, next) {
         photo_url: null
       };
     }
+/* ---- ADDED: post-spin commission hook (parallel route, additive only) ---- */
+app.post('/api/spin/commission', auth, (req, res) => {
+  try {
+    const amount = Number(req.body.amount || 0);
+    if (amount > 0) awardReferralCommissionEarnCraft(req.user.telegram_id, 'spin', amount);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[SPIN COMMISSION ERROR]', err);
+    res.status(500).json({ ok: false, error: 'SPIN_COMM_FAILED' });
+  }
+});
+/* ---- END ADDED ---- */
 
 /* ---- ADDED: milestone check endpoint (returns +5 tickets if milestone hit) ---- */
 app.post('/api/tasks/milestone', auth, (req, res) => {
