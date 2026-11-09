@@ -16,7 +16,7 @@ let bot = null;
 'use strict';
 
 const CONFIG = {
-  BOT_TOKEN: '9285520861:AAF4MZeRVn4nzO9zfhmwddpq1PZOiWof-N8',
+  BOT_TOKEN: '9285520861:AAGUQ8KnSyw0GJwXBdMvB99TSxsnk3sSk3Q',
   BOT_USERNAME: 'EarnCraftEtBot',
 WEBAPP_URL: 'https://onrender.com',
  ADMIN_TELEGRAM_ID: '6431033307',
