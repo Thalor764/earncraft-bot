@@ -1,0 +1,2356 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#120624" />
+<title>EarnCraft Pro</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+<style>
+  :root {
+    --bg: #120624;
+    --bg-glow: #261046;
+    --card: rgba(43, 16, 85, 0.75);
+    --card-border: rgba(186, 104, 255, 0.25);
+    --purple-1: #7B2CBF;
+    --purple-2: #9D4EDD;
+    --gold-1: #FFD700;
+    --gold-2: #F59E0B;
+    --text: #F4EEFF;
+    --muted: #B7A9D6;
+  }
+  * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    overscroll-behavior: none;
+    min-height: 100vh;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(157, 78, 221, 0.28), transparent 55%),
+      radial-gradient(circle at 80% 90%, rgba(123, 44, 191, 0.22), transparent 55%),
+      var(--bg);
+    z-index: -2;
+  }
+  #app { max-width: 520px; margin: 0 auto; padding-bottom: 96px; min-height: 100vh; }
+
+  .glass {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+  .gold-text {
+    background: linear-gradient(135deg, var(--gold-1) 0%, var(--gold-2) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--purple-1) 0%, var(--purple-2) 100%);
+    color: #fff; border: none; border-radius: 14px; font-weight: 700;
+    padding: 12px 16px; cursor: pointer;
+    box-shadow: 0 4px 18px rgba(123, 44, 191, 0.5);
+    transition: transform 0.12s ease, box-shadow 0.2s ease;
+  }
+  .btn-primary:active { transform: scale(0.95); }
+  .btn-gold {
+    background: linear-gradient(135deg, var(--gold-1) 0%, var(--gold-2) 100%);
+    color: #2a1500; border: none; border-radius: 14px; font-weight: 800;
+    padding: 12px 16px; cursor: pointer;
+    box-shadow: 0 4px 18px rgba(245, 158, 11, 0.45);
+    transition: transform 0.12s ease;
+  }
+  .btn-gold:active { transform: scale(0.95); }
+  .btn-gold:disabled { opacity: 0.45; cursor: not-allowed; filter: grayscale(0.5); }
+  .btn-ghost {
+    background: rgba(157, 78, 221, 0.15);
+    border: 1px solid var(--card-border);
+    color: var(--text); border-radius: 12px; padding: 10px 14px; font-weight: 600;
+    cursor: pointer; transition: transform 0.12s ease, background 0.2s;
+  }
+  .btn-ghost:active { transform: scale(0.95); background: rgba(157,78,221,0.28); }
+
+  .pill {
+    border-radius: 999px; padding: 6px 12px; font-weight: 700; font-size: 13px;
+    border: 1px solid var(--card-border); background: rgba(43,16,85,0.6);
+    display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+  }
+  .pill-gold { border-color: rgba(255,215,0,0.55); box-shadow: 0 0 12px rgba(255,215,0,0.25); }
+
+  .wheel-wrap { position: relative; width: 100%; max-width: 340px; margin: 0 auto; aspect-ratio: 1/1; }
+  #wheelCanvas { width: 100%; height: 100%; display: block; filter: drop-shadow(0 0 18px rgba(157,78,221,0.5)); }
+  #wheelPointer {
+    position: absolute; top: -6px; left: 50%; transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 16px solid transparent; border-right: 16px solid transparent;
+    border-top: 26px solid var(--gold-1);
+    filter: drop-shadow(0 0 8px rgba(255,215,0,0.9));
+    z-index: 5;
+  }
+  #spinBtn {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 92px; height: 92px; border-radius: 50%;
+    background: linear-gradient(135deg, #FFD700 0%, #F59E0B 100%);
+    color: #2a1500; font-weight: 900; font-size: 14px;
+    border: 4px solid #fff6d6;
+    box-shadow: 0 0 24px rgba(255,215,0,0.75), inset 0 -4px 8px rgba(0,0,0,0.2);
+    cursor: pointer; z-index: 6;
+    transition: transform 0.12s ease;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    line-height: 1.1; padding: 6px;
+  }
+  #spinBtn:active { transform: translate(-50%, -50%) scale(0.92); }
+  #spinBtn:disabled { filter: grayscale(0.4) brightness(0.85); cursor: not-allowed; }
+
+  .progress-track { height: 12px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; }
+  .progress-fill {
+    height: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, var(--gold-1), var(--gold-2));
+    transition: width 0.6s ease;
+    box-shadow: 0 0 12px rgba(255,215,0,0.6);
+  }
+
+  .tab-view { display: none; animation: fadeIn 0.28s ease; }
+  .tab-view.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px);} to { opacity: 1; transform: none; } }
+
+  #bottomNav {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
+    display: flex; justify-content: space-around; align-items: center;
+    padding: 8px 8px calc(8px + env(safe-area-inset-bottom, 0px));
+    background: rgba(18, 6, 36, 0.92);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border-top: 1px solid var(--card-border);
+    max-width: 520px; margin: 0 auto;
+  }
+  .nav-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 6px 4px; border-radius: 12px; border: none; background: transparent;
+    color: var(--muted); font-size: 11px; font-weight: 700; cursor: pointer;
+    transition: color 0.2s, background 0.2s, transform 0.15s;
+  }
+  .nav-btn .icon { font-size: 20px; line-height: 1; }
+  .nav-btn.active {
+    color: var(--gold-1);
+    background: rgba(157,78,221,0.15);
+    text-shadow: 0 0 12px rgba(255,215,0,0.6);
+  }
+  .nav-btn:active { transform: scale(0.94); }
+
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 80;
+    background: rgba(6, 2, 15, 0.75);
+    backdrop-filter: blur(6px);
+    display: none; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; animation: fadeIn 0.25s ease; }
+  .modal-box {
+    width: 100%; max-width: 420px; max-height: 86vh; overflow-y: auto;
+    background: linear-gradient(160deg, rgba(43,16,85,0.96), rgba(24,8,48,0.96));
+    border: 1px solid var(--card-border); border-radius: 22px;
+    padding: 22px; box-shadow: 0 24px 70px rgba(0,0,0,0.65);
+    animation: popIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes popIn { from { opacity: 0; transform: scale(0.9);} to { opacity: 1; transform: scale(1);} }
+
+  .input-field {
+    width: 100%; padding: 12px 14px; border-radius: 12px;
+    background: rgba(10, 3, 22, 0.7); color: var(--text);
+    border: 1px solid var(--card-border); font-size: 15px; outline: none;
+    transition: border-color 0.2s;
+  }
+  .input-field:focus { border-color: var(--purple-2); }
+  select.input-field { appearance: none; -webkit-appearance: none; }
+  .input-label { font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 4px; display: block; }
+
+  .task-card {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 14px; border-radius: 14px; margin-bottom: 8px;
+    border: 1px solid var(--card-border);
+    background: rgba(43, 16, 85, 0.55);
+    transition: transform 0.15s, box-shadow 0.2s;
+  }
+  .task-card.active {
+    border-color: rgba(255, 215, 0, 0.55);
+    box-shadow: 0 0 18px rgba(157,78,221,0.4);
+    animation: pulseGlow 2s infinite;
+  }
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 12px rgba(157,78,221,0.35); }
+    50% { box-shadow: 0 0 26px rgba(255,215,0,0.45); }
+  }
+  .task-card.done { opacity: 0.72; border-color: rgba(34,197,94,0.4); }
+  .task-card.locked { opacity: 0.55; }
+  .task-card.penalty { border-color: rgba(239,68,68,0.5) !important; box-shadow: 0 0 16px rgba(239,68,68,0.35); }
+
+  .channel-card {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px; border-radius: 16px; margin-bottom: 12px;
+    background: linear-gradient(135deg, rgba(255,215,0,0.16), rgba(157,78,221,0.16));
+    border: 1px solid rgba(255,215,0,0.5);
+    box-shadow: 0 0 20px rgba(255,215,0,0.18);
+  }
+  .commission-item {
+    padding: 10px 0; border-bottom: 1px solid rgba(186,104,255,0.12);
+  }
+  .cond-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 0; border-bottom: 1px solid rgba(186,104,255,0.12);
+  }
+
+  .toast {
+    position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%);
+    background: rgba(43, 16, 85, 0.97); color: var(--text);
+    border: 1px solid var(--card-border); padding: 12px 20px;
+    border-radius: 14px; z-index: 120; font-weight: 600; font-size: 14px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+    animation: toastIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    max-width: 88vw; text-align: center;
+  }
+  @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 20px);} to { opacity: 1; transform: translate(-50%, 0);} }
+
+  .spinner {
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 3px solid rgba(255,255,255,0.25); border-top-color: #fff;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .scroll-area { max-height: 60vh; overflow-y: auto; }
+  .scroll-area::-webkit-scrollbar { width: 4px; }
+  .scroll-area::-webkit-scrollbar-thumb { background: var(--purple-2); border-radius: 4px; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header class="px-4 pt-4 pb-2 flex items-center justify-between sticky top-0 z-30" style="background: rgba(18,6,36,0.85); backdrop-filter: blur(10px);">
+    <div class="flex items-center gap-2 min-w-0">
+      <div id="avatarWrap" class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center font-bold text-lg" style="background: linear-gradient(135deg,#7B2CBF,#9D4EDD); border: 2px solid var(--gold-1);"></div>
+      <div class="min-w-0">
+        <div id="headerName" class="font-bold text-sm truncate">User</div>
+        <div id="headerId" class="text-[11px]" style="color: var(--muted);">ID: -</div>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <div class="pill" title="Spin Tickets">🎟️ <span id="headerTickets">0</span></div>
+      <div class="pill pill-gold" title="Wallet">ETB <span id="headerBalance">0.00</span></div>
+      <button id="langToggle" class="pill" style="cursor:pointer;">አማ / EN</button>
+    </div>
+  </header>
+
+  <section id="tab-spin" class="tab-view active px-4 pt-3">
+    <div class="glass p-4 mb-4">
+      <div class="flex items-center justify-between mb-2">
+        <div class="text-sm font-bold" data-i18n="goal">የገንዘብ ማውጣት ግብ</div>
+        <div class="text-sm font-extrabold gold-text">ETB <span id="goalBal">0</span> / <span id="goalMin">2000</span></div>
+      </div>
+      <div class="progress-track mb-2"><div id="goalProgress" class="progress-fill" style="width:0%"></div></div>
+      <div id="goalHelp" class="text-xs" style="color: var(--muted);">ለገንዘብ ማውጣት ETB 2000 ይቀርዎታል</div>
+    </div>
+
+    <div class="wheel-wrap mb-4">
+      <div id="wheelPointer"></div>
+      <canvas id="wheelCanvas" width="600" height="600"></canvas>
+      <button id="spinBtn">አሽከርክር</button>
+    </div>
+
+    <div id="spinStatus" class="text-center text-sm mb-3" style="color: var(--muted);"></div>
+
+    <div class="glass p-4 mb-4">
+      <div class="font-bold text-sm mb-2" data-i18n="inviteBox">🎁 የግል ማጋሪያ ሊንክ</div>
+      <div id="refLinkBox" class="text-xs p-2 rounded-lg mb-3 break-all" style="background: rgba(10,3,22,0.7); color: var(--gold-1);"></div>
+      <div class="grid grid-cols-2 gap-2">
+        <button id="copyRefBtn" class="btn-ghost text-sm" data-i18n="copyLink">ሊንክ ቅዳ</button>
+        <button id="shareRefBtn" class="btn-primary text-sm" data-i18n="shareTg">ጓደኛ ጋብዝ</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-tasks" class="tab-view px-4 pt-3">
+    <div id="channelJoinCard" class="channel-card">
+      <div class="flex items-center gap-3">
+        <div style="font-size:26px;">📢</div>
+        <div>
+          <div class="font-bold text-sm" data-i18n="channelJoinTitle">የቴሌግራም ቻናላችንን ይቀላቀሉ</div>
+          <div class="text-[11px]" style="color: var(--gold-1);">$1 · 130 ETB</div>
+        </div>
+      </div>
+      <button id="channelJoinBtn" class="btn-gold text-xs px-3 py-2" data-i18n="join">ተቀላቀል</button>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 mb-4">
+      <button id="dailyCard" class="glass p-3 text-left">
+        <div class="text-2xl mb-1">📅</div>
+        <div class="font-bold text-sm" data-i18n="dailyCheckin">ዕለታዊ ሽልማት</div>
+        <div id="dailyTimer" class="text-[11px] mt-1" style="color: var(--gold-1);">--:--:--</div>
+      </button>
+      <button id="giftCard" class="glass p-3 text-left">
+        <div class="text-2xl mb-1">🎟️</div>
+        <div class="font-bold text-sm" data-i18n="giftCode">የስጦታ ኮድ</div>
+        <div class="text-[11px] mt-1" style="color: var(--muted);" data-i18n="giftCodeHint">ቦነስ ይቀበሉ</div>
+      </button>
+    </div>
+
+    <div class="glass p-4 mb-3">
+      <div class="flex items-center justify-between mb-2">
+        <div class="font-bold text-sm" data-i18n="tasksToday">የዛሬ ተግባራት</div>
+        <div class="font-extrabold gold-text"><span id="tasksDone">0</span> / 100</div>
+      </div>
+      <div class="progress-track mb-2"><div id="tasksProgress" class="progress-fill" style="width:0%"></div></div>
+      <div class="text-[11px]" style="color: var(--muted);" data-i18n="tasksReset">በየ24 ሰዓቱ ዳግም ይጀምራል</div>
+      <div class="text-[11px] mt-1" id="penaltyInfo" style="color: #ef4444; display:none;"></div>
+    </div>
+
+    <div id="taskList"></div>
+  </section>
+
+  <section id="tab-team" class="tab-view px-4 pt-3">
+    <div class="grid grid-cols-2 gap-3 mb-4">
+      <div class="glass p-4">
+        <div class="text-xs" style="color: var(--muted);" data-i18n="totalInvited">ጠቅላላ የተጋበዙ</div>
+        <div class="text-2xl font-extrabold gold-text mt-1" id="teamTotal">0</div>
+      </div>
+      <div class="glass p-4">
+        <div class="text-xs" style="color: var(--muted);" data-i18n="activeFriends">ንቁ ጓደኞች</div>
+        <div class="text-2xl font-extrabold gold-text mt-1" id="teamActive">0</div>
+      </div>
+    </div>
+
+    <div class="glass p-4 mb-4">
+      <div class="font-bold text-sm mb-1" data-i18n="refRules">የግብዣ ደንቦች</div>
+      <div class="text-xs" style="color: var(--muted);" data-i18n="refRulesText">
+        እያንዳንዱ በሊንክዎ የሚገባ ጓደኛ +1 የማሽከርከሪያ ቲኬት ያስገኝልዎታል
+      </div>
+    </div>
+
+    <div class="glass p-4 mb-4">
+      <div class="flex items-center justify-between mb-2">
+        <div class="font-bold text-sm" data-i18n="withdrawMilestone">የገንዘብ ማውጣት ምዕራፍ</div>
+        <div class="font-extrabold gold-text"><span id="teamMilestoneNum">0</span> / 8</div>
+      </div>
+      <div class="progress-track mb-3"><div id="milestoneProgress" class="progress-fill" style="width:0%"></div></div>
+      <div class="flex justify-between text-[11px]" style="color: var(--muted);">
+        <span>1</span><span>3</span><span>5</span><span>8</span>
+      </div>
+    </div>
+
+    <div class="glass p-4 mb-4">
+      <div class="font-bold text-sm mb-2" data-i18n="friendList">የተጋበዙ ጓደኞች</div>
+      <div id="friendList" class="scroll-area">
+        <div class="text-sm text-center py-6" style="color: var(--muted);" data-i18n="noFriends">እስካሁን ጓደኛ አልጋበዙም</div>
+      </div>
+    </div>
+
+    <div class="glass p-4">
+      <div class="flex items-center justify-between mb-2">
+        <div class="font-bold text-sm" data-i18n="commissionTitle">🎁 የግብዣ ኮሚሽን ገቢ</div>
+        <div class="font-extrabold gold-text">ETB <span id="commissionEarned">0.00</span></div>
+      </div>
+      <div id="commissionList" class="scroll-area">
+        <div class="text-sm text-center py-4" style="color: var(--muted);" data-i18n="noCommissions">እስካሁን ኮሚሽን የለም</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-profile" class="tab-view px-4 pt-3">
+    <div class="glass p-5 mb-4 text-center">
+      <div class="text-xs mb-1" style="color: var(--muted);" data-i18n="walletBalance">የኪስ ቦርሳ ቀሪ ሂሳብ</div>
+      <div class="text-4xl font-extrabold gold-text mb-1">ETB <span id="profileBalance">0.00</span></div>
+      <div class="text-sm mb-3" style="color: var(--muted);">≈ $<span id="profileBalanceUsd">0.00</span> USD</div>
+      <button id="withdrawBtn" class="btn-gold w-full text-lg" data-i18n="withdraw">ብር ያውጡ</button>
+    </div>
+
+    <div class="glass p-4 mb-4">
+      <div class="flex items-center justify-between mb-2">
+        <div id="profileTitle" class="font-bold text-sm" data-i18n="myStats">የእኔ መረጃ</div>
+      </div>
+      <div class="text-sm space-y-2">
+        <div class="flex justify-between"><span style="color:var(--muted);" data-i18n="totalTasks">ጠቅላላ ተግባራት</span><span id="statTotalTasks" class="font-bold">0</span></div>
+        <div class="flex justify-between"><span style="color:var(--muted);" data-i18n="totalRefs">ጠቅላላ ጓደኞች</span><span id="statTotalRefs" class="font-bold">0</span></div>
+        <div class="flex justify-between"><span style="color:var(--muted);" data-i18n="tickets">ቲኬቶች</span><span id="statTickets" class="font-bold">0</span></div>
+        <div class="flex justify-between"><span style="color:var(--muted);" data-i18n="penaltyTasks">ቅጣት ተግባራት</span><span id="statPenalty" class="font-bold" style="color:#ef4444;">0</span></div>
+      </div>
+    </div>
+
+    <div class="glass p-4 mb-4">
+      <div class="font-bold text-sm mb-2" data-i18n="history">የክፍያ ታሪክ</div>
+      <div id="historyList" class="scroll-area">
+        <div class="text-sm text-center py-4" style="color: var(--muted);" data-i18n="noHistory">እስካሁን ክፍያ የለም</div>
+      </div>
+    </div>
+
+    <div id="adminPanel" style="display:none;">
+      <button id="adminOpenBtn" class="btn-gold w-full mb-4" style="font-size:16px;">👑 Admin Dashboard</button>
+    </div>
+  </section>
+
+  <nav id="bottomNav">
+    <button class="nav-btn active" data-tab="spin"><span class="icon">🎡</span><span data-i18n="navSpin">አሽከርክር</span></button>
+    <button class="nav-btn" data-tab="tasks"><span class="icon">🎬</span><span data-i18n="navTasks">ተግባራት</span></button>
+    <button class="nav-btn" data-tab="team"><span class="icon">👥</span><span data-i18n="navTeam">ቡና</span></button>
+    <button class="nav-btn" data-tab="profile"><span class="icon">👤</span><span data-i18n="navProfile">የእኔ</span></button>
+  </nav>
+</div>
+
+<div id="modalOverlay" class="modal-overlay">
+  <div class="modal-box" id="modalContent"></div>
+</div>
+
+<div id="milestoneModal" class="modal-overlay">
+  <div class="modal-box text-center">
+    <div class="text-6xl mb-2">🏆</div>
+    <div class="text-2xl font-extrabold gold-text mb-2" data-i18n="milestoneTitle">ሚልስቶን ተሳክቷል!</div>
+    <div class="text-sm mb-4" style="color: var(--muted);" id="milestoneMsg">+5 ተጨማሪ የማሽከርከሪያ ቲኬቶች ተሸልመዋል!</div>
+    <button id="milestoneOkBtn" class="btn-gold w-full" data-i18n="ok">እሺ</button>
+  </div>
+</div>
+
+<div id="penaltyModal" class="modal-overlay">
+  <div class="modal-box text-center">
+    <div class="text-6xl mb-2">⚠️</div>
+    <div class="text-2xl font-extrabold mb-2" style="color:#ef4444;" data-i18n="penaltyTitle">ማስታወቂያውን አቋርጠዋል!</div>
+    <div class="text-sm mb-4" style="color: var(--muted);" id="penaltyMsg">ቅጣት +2 ተጨማሪ ተግባራት ተጨምሮብዎታል።</div>
+    <button id="penaltyOkBtn" class="btn-ghost w-full" data-i18n="ok">እሺ</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+const state = {
+  tg: null,
+  tgUser: null,
+  initData: '',
+  isTelegram: false,
+  isOffline: false,
+  lang: 'am',
+  config: {
+    botUsername: 'EarnCraftProBot',
+    adsgramBlockId: '',
+    minWithdrawEtb: 2000,
+    minReferrals: 8,
+    minTasks: 50,
+    dailyTaskLimit: 100,
+    officialChannelUrl: 'https://t.me/EarnCraftProOfficial',
+    channelJoinRewardEtb: 130,
+    milestoneEvery: 10,
+    milestoneBonusTickets: 5,
+    penaltyPerSkip: 2,
+    referralCommissionPercent: 10
+  },
+  user: null,
+  team: { referralCount: 0, qualifiedCount: 0, friends: [], commissions: [], commissionEarned: 0 },
+  withdrawals: [],
+  spinning: false,
+  wheelRotation: 0,
+  adController: null,
+  dailyTimerInterval: null,
+  refreshTimer: null,
+  offlineKey: 'earncraft_offline_v2'
+};
+
+const I18N = {
+  am: {
+    goal: 'የገንዘብ ማውጣት ግብ',
+    inviteBox: '🎁 የግል ማጋሪያ ሊንክ',
+    copyLink: 'ሊንክ ቅዳ',
+    shareTg: 'ጓደኛ ጋብዝ',
+    dailyCheckin: 'ዕለታዊ ሽልማት',
+    giftCode: 'የስጦታ ኮድ',
+    giftCodeHint: 'ቦነስ ይቀበሉ',
+    tasksToday: 'የዛሬ ተግባራት',
+    tasksReset: 'በየ24 ሰዓቱ ዳግም ይጀምራል',
+    totalInvited: 'ጠቅላላ የተጋበዙ',
+    activeFriends: 'ንቁ ጓደኞች',
+    refRules: 'የግብዣ ደንቦች',
+    refRulesText: 'እያንዳንዱ በሊንክዎ የሚገባ ጓደኛ +1 የማሽከርከሪያ ቲኬት ያስገኝልዎታል። ጓደኞችዎ ሲያሸንፉ 10% ኮሚሽን ያገኛሉ።',
+    withdrawMilestone: 'የገንዘብ ማውጣት ምዕራፍ',
+    friendList: 'የተጋበዙ ጓደኞች',
+    noFriends: 'እስካሁን ጓደኛ አልጋበዙም',
+    walletBalance: 'የኪስ ቦርሳ ቀሪ ሂሳብ',
+    withdraw: 'ብር ያውጡ',
+    myStats: 'የእኔ መረጃ',
+    totalTasks: 'ጠቅላላ ተግባራት',
+    totalRefs: 'ጠቅላላ ጓደኞች',
+    tickets: 'ቲኬቶች',
+    penaltyTasks: 'ቅጣት ተግባራት',
+    history: 'የክፍያ ታሪክ',
+    noHistory: 'እስካሁን ክፍያ የለም',
+    navSpin: 'አሽከርክር',
+    navTasks: 'ተግባራት',
+    navTeam: 'ቡድን',
+    navProfile: 'የእኔ',
+    claimSuccess: '🎉 ተሳክቷል!',
+    claimSuccessMsg: 'ዛሬ የዕለቱን ሽልማት አግኝተዋል! +1 🎟️',
+    alreadyClaimed: 'ውይ!',
+    alreadyClaimedMsg: 'ዛሬ ቀድመው አግኝተዋል። እባክዎ ነገ ይመለሱ።',
+    close: 'ዝጋ',
+    giftCodeTitle: '🎟️ የስጦታ ኮድ ያስገቡ',
+    redeem: 'ተቀበል',
+    invalidCode: 'የተሳሳተ ኮድ',
+    codeRedeemed: '🎉 ኮድ ተቀብሏል!',
+    withdrawTitle: '💸 ብር ማውጣት',
+    reqBalance: 'ዝቅተኛ ቀሪ ሂሳብ',
+    reqRefs: 'ዝቅተኛ ጓደኞች',
+    reqTasks: 'ዝቅተኛ ተግባራት',
+    paymentMethod: 'የክፍያ ዘዴ',
+    accountName: 'የባለቤት ሙሉ ስም',
+    accountDetail: 'የስልክ ቁጥር / የባንክ አካውንት / ኢሜይል / BTC',
+    amountETB: 'መጠን (ETB)',
+    submit: 'አስገባ',
+    success: 'ተሳክቷል!',
+    successWithdraw: 'የገንዘብ ማውጣት ጥያቄዎ ተቀብሏል። በቅርቡ ይገምገማል።',
+    error: 'ስህተት',
+    adNotCompleted: 'ማስታወቂያው አልተጠናቀቀም ወይም አሁን አልተገኘም፤ እባክዎ እንደገና ይሞክሩ',
+    noTickets: 'ቲኬት የለም',
+    noTicketsMsg: 'ማስታወቂያ በመመልከት ወይም ጓደኛ በመጋበዝ ተጨማሪ ቲኬት ያግኙ።',
+    congrats: 'እንኳን ደስ አለዎት!',
+    youWon: 'አሸንፈዋል!',
+    copied: 'ሊንክ ተቀድቷል ✓',
+    loading: 'በመጫን ላይ...',
+    spin: 'አሽከርክር',
+    spinBusy: 'በማሽከረከር ላይ...',
+    pending: 'በመጠባበቅ ላይ',
+    approved: 'ተከፍሏል',
+    rejected: 'ተሰርዟል',
+    adWatch: 'ማስታወቂያ እይ (+1 🎟️)',
+    taskDone: 'ተጠናቋል ✓',
+    locked: 'ተቆልፏል',
+    adminTitle: '👑 Admin Dashboard',
+    analytics: 'ትንታኔ',
+    totalUsers: 'ጠቅላላ ተጠቃሚዎች',
+    adsWatched: 'ጠቅላላ ማስታወቂያዎች',
+    pendingWithdrawals: 'በመጠባበቅ ላይ',
+    manageWithdrawals: 'ክፍያዎችን አስተዳድር',
+    approve: '✓ አጽድቅ',
+    reject: '✕ ሰርዝ',
+    noPending: 'ምንም በመጠባበቅ ላይ የለም',
+    createGift: '🎟️ አዲስ የስጦታ ኮድ',
+    codeName: 'ኮድ',
+    ticketsAmt: 'ቲኬቶች',
+    etbAmt: 'ETB',
+    maxUses: 'ከፍተኛ አጠቃቀም',
+    create: 'ፍጠር',
+    giftCreated: 'ኮድ ተፈጥሯል ✓',
+    channelJoinTitle: 'የቴሌግራም ቻናላችንን ይቀላቀሉ',
+    join: 'ተቀላቀል',
+    verify: 'አረጋግጥ',
+    verified: 'ተረጋግጧል ✓',
+    channelClaimed: 'ተቀብለዋል ✓',
+    channelClaimedMsg: 'የቻናል ሽልማት ተቀብለዋል!',
+    commissionTitle: '🎁 የግብዣ ኮሚሽን ገቢ',
+    noCommissions: 'እስካሁን ኮሚሽን የለም',
+    milestoneTitle: 'ሚልስቶን ተሳክቷል!',
+    milestoneMsg: '+5 ተጨማሪ የማሽከርከሪያ ቲኬቶች ተሸልመዋል!',
+    ok: 'እሺ',
+    penaltyTitle: 'ማስታወቂያውን አቋርጠዋል!',
+    penaltyMsg: 'ቅጣት +2 ተጨማሪ ተግባራት ተጨምሮብዎታል።',
+    paypal: 'PayPal',
+    btc: 'Bitcoin (BTC)',
+    noAccess: 'መዳረሻ አልተፈቀደም',
+    offlineMode: '📴 ከመስመር ውጭ ሁነታ (የአካባቢ ቅድመ-እይታ)',
+    onlineMode: '🌐 በመስመር ላይ',
+    welcomeBonus: '🎉 እንኳን በደህና መጡ! 3 ነፃ ቲኬቶች ተሸልመዋል!'
+  },
+  en: {
+    goal: 'Withdrawal Goal',
+    inviteBox: '🎁 Your Referral Link',
+    copyLink: 'Copy Link',
+    shareTg: 'Invite Friend',
+    dailyCheckin: 'Daily Check-in',
+    giftCode: 'Gift Code',
+    giftCodeHint: 'Claim bonus',
+    tasksToday: "Today's Tasks",
+    tasksReset: 'Resets every 24 hours',
+    totalInvited: 'Total Invited',
+    activeFriends: 'Active Friends',
+    refRules: 'Referral Rules',
+    refRulesText: 'Each friend who joins via your link earns you +1 Spin Ticket. You also earn 10% commission when your friends win!',
+    withdrawMilestone: 'Withdrawal Milestone',
+    friendList: 'Invited Friends',
+    noFriends: 'No friends invited yet',
+    walletBalance: 'Wallet Balance',
+    withdraw: 'Withdraw',
+    myStats: 'My Stats',
+    totalTasks: 'Total Tasks',
+    totalRefs: 'Total Referrals',
+    tickets: 'Tickets',
+    penaltyTasks: 'Penalty Tasks',
+    history: 'Transaction History',
+    noHistory: 'No transactions yet',
+    navSpin: 'Spin',
+    navTasks: 'Tasks',
+    navTeam: 'Team',
+    navProfile: 'Profile',
+    claimSuccess: '🎉 Claimed!',
+    claimSuccessMsg: "You received today's reward! +1 🎟️",
+    alreadyClaimed: 'Oops!',
+    alreadyClaimedMsg: 'You already claimed today. Please come back tomorrow.',
+    close: 'Close',
+    giftCodeTitle: '🎟️ Enter Gift Code',
+    redeem: 'Redeem',
+    invalidCode: 'Invalid code',
+    codeRedeemed: '🎉 Code Redeemed!',
+    withdrawTitle: '💸 Withdraw Funds',
+    reqBalance: 'Minimum balance',
+    reqRefs: 'Minimum referrals',
+    reqTasks: 'Minimum tasks',
+    paymentMethod: 'Payment Method',
+    accountName: 'Account Holder Full Name',
+    accountDetail: 'Phone / Bank Account / Email / BTC',
+    amountETB: 'Amount (ETB)',
+    submit: 'Submit',
+    success: 'Success!',
+    successWithdraw: 'Withdrawal request submitted. It will be reviewed shortly.',
+    error: 'Error',
+    adNotCompleted: 'Ad was not completed or unavailable, please try again.',
+    noTickets: 'No tickets',
+    noTicketsMsg: 'Watch ads or invite friends to earn more tickets.',
+    congrats: 'Congratulations!',
+    youWon: 'You won!',
+    copied: 'Link copied ✓',
+    loading: 'Loading...',
+    spin: 'SPIN',
+    spinBusy: 'Spinning...',
+    pending: 'Pending',
+    approved: 'Approved',
+    rejected: 'Rejected',
+    adWatch: 'Watch Ad (+1 🎟️)',
+    taskDone: 'Completed ✓',
+    locked: 'Locked',
+    adminTitle: '👑 Admin Dashboard',
+    analytics: 'Analytics',
+    totalUsers: 'Total Users',
+    adsWatched: 'Total Ads Watched',
+    pendingWithdrawals: 'Pending Withdrawals',
+    manageWithdrawals: 'Manage Withdrawals',
+    approve: '✓ Approve',
+    reject: '✕ Reject',
+    noPending: 'No pending withdrawals',
+    createGift: '🎟️ New Gift Code',
+    codeName: 'Code',
+    ticketsAmt: 'Tickets',
+    etbAmt: 'ETB',
+    maxUses: 'Max Uses',
+    create: 'Create',
+    giftCreated: 'Code created ✓',
+    channelJoinTitle: 'Join Official Telegram Channel',
+    join: 'Join',
+    verify: 'Verify',
+    verified: 'Verified ✓',
+    channelClaimed: 'Claimed ✓',
+    channelClaimedMsg: 'Channel reward already claimed!',
+    commissionTitle: '🎁 Referral Commission',
+    noCommissions: 'No commissions yet',
+    milestoneTitle: 'Milestone Reached!',
+    milestoneMsg: '+5 bonus spin tickets awarded!',
+    ok: 'OK',
+    penaltyTitle: 'Ad Skipped!',
+    penaltyMsg: '+2 penalty tasks added.',
+    paypal: 'PayPal',
+    btc: 'Bitcoin (BTC)',
+    noAccess: 'Access denied',
+    offlineMode: '📴 Offline Mode (Local Preview)',
+    onlineMode: '🌐 Online',
+    welcomeBonus: '🎉 Welcome! 3 free tickets awarded!'
+  }
+};
+
+function t(key) {
+  const dict = I18N[state.lang] || I18N.am;
+  return dict[key] || I18N.am[key] || key;
+}
+
+/* ---------- OFFLINE STORAGE ---------- */
+function todayKey() {
+  const d = new Date();
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+}
+
+function loadOffline() {
+  try {
+    const raw = localStorage.getItem(state.offlineKey);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed.dateKey !== todayKey()) {
+        parsed.completedTasksToday = 0;
+        parsed.penaltyTasks = 0;
+        parsed.dateKey = todayKey();
+        localStorage.setItem(state.offlineKey, JSON.stringify(parsed));
+      }
+      return parsed;
+    }
+  } catch (e) {}
+  const fresh = {
+    telegramId: 555000111,
+    firstName: 'Guest',
+    username: 'guest_preview',
+    balance: 0,
+    tickets: 3,
+    completedTasksToday: 0,
+    totalTasksCompleted: 0,
+    penaltyTasks: 0,
+    channelJoinClaimed: false,
+    commissionEarned: 0,
+    milestoneClaimedUpTo: 0,
+    lastDailyClaimAt: null,
+    lastSpinAt: null,
+    referralCode: 'ref_offline_' + Math.random().toString(36).slice(2, 8),
+    referralCount: 0,
+    qualifiedReferralCount: 0,
+    isAdmin: true,
+    dateKey: todayKey(),
+    giftCodesUsed: [],
+    withdrawals: [],
+    friends: [
+      { name: 'Abebe K.', joinedAt: '2026-01-15', commission: 12.50, qualified: true },
+      { name: 'Sara M.', joinedAt: '2026-01-18', commission: 8.00, qualified: true },
+      { name: 'Dawit T.', joinedAt: '2026-02-02', commission: 4.20, qualified: false }
+    ],
+    commissions: [
+      { friendName: 'Abebe K.', sourceType: 'spin', commissionAmount: 12.50, createdAt: '2026-01-20' },
+      { friendName: 'Sara M.', sourceType: 'task', commissionAmount: 8.00, createdAt: '2026-02-01' },
+      { friendName: 'Dawit T.', sourceType: 'spin', commissionAmount: 4.20, createdAt: '2026-02-10' }
+    ],
+    referralCount: 3,
+    commissionEarned: 24.70
+  };
+  localStorage.setItem(state.offlineKey, JSON.stringify(fresh));
+  return fresh;
+}
+
+function saveOffline(d) {
+  try { localStorage.setItem(state.offlineKey, JSON.stringify(d)); } catch (e) {}
+}
+
+function offlineUserPub(d) {
+  return {
+    telegramId: d.telegramId,
+    firstName: d.firstName,
+    lastName: '',
+    username: d.username,
+    photoUrl: null,
+    balance: Math.round(d.balance * 100) / 100,
+    tickets: d.tickets,
+    completedTasksToday: d.completedTasksToday,
+    totalTasksCompleted: d.totalTasksCompleted,
+    penaltyTasks: d.penaltyTasks,
+    channelJoinClaimed: d.channelJoinClaimed,
+    commissionEarned: Math.round(d.commissionEarned * 100) / 100,
+    milestoneClaimedUpTo: d.milestoneClaimedUpTo,
+    lastDailyClaimAt: d.lastDailyClaimAt,
+    lastSpinAt: d.lastSpinAt,
+    referralCode: d.referralCode,
+    referralCount: d.referralCount,
+    qualifiedReferralCount: d.qualifiedReferralCount,
+    isAdmin: d.isAdmin
+  };
+}
+
+/* ---------- API WRAPPER (online first, offline fallback) ---------- */
+async function api(path, body = {}, method = 'POST') {
+  if (!state.isOffline) {
+    try {
+      const headers = { 'Content-Type': 'application/json' };
+      if (state.initData) headers['x-telegram-init-data'] = state.initData;
+      const payload = {
+        ...body,
+        telegramId: state.tgUser ? state.tgUser.id : null,
+        firstName: state.tgUser ? state.tgUser.first_name : 'Guest',
+        username: state.tgUser ? state.tgUser.username : null
+      };
+      const opts = { method, headers };
+      if (method !== 'GET') opts.body = JSON.stringify(payload);
+      const res = await fetch(path, opts);
+      let data = null;
+      try { data = await res.json(); } catch (e) { data = { ok: false, error: 'PARSE_ERROR' }; }
+      if (!res.ok || data.ok === false) {
+        const err = new Error(data.error || 'REQUEST_FAILED');
+        err.code = data.error;
+        err.data = data;
+        throw err;
+      }
+      return data;
+    } catch (e) {
+      if (e && (e.code === 'REQUEST_FAILED' || e instanceof TypeError || !e.code)) {
+        state.isOffline = true;
+      } else {
+        throw e;
+      }
+    }
+  }
+  return offlineMock(path, body, method);
+}
+
+function offlineMock(path, body, method) {
+  const d = loadOffline();
+  const pub = () => offlineUserPub(d);
+
+  if (path === '/api/config') {
+    return {
+      ok: true,
+      botUsername: state.config.botUsername,
+      adsgramBlockId: state.config.adsgramBlockId,
+      minWithdrawEtb: 2000,
+      minReferrals: 8,
+      minTasks: 50,
+      dailyTaskLimit: 100,
+      officialChannelUrl: 'https://t.me/EarnCraftProOfficial',
+      channelJoinRewardEtb: 130,
+      milestoneEvery: 10,
+      milestoneBonusTickets: 5,
+      penaltyPerSkip: 2
+    };
+  }
+  if (path === '/api/auth') {
+    return { ok: true, user: pub() };
+  }
+  if (path === '/api/spin') {
+    if (d.tickets <= 0) {
+      const e = new Error('NO_TICKETS');
+      e.code = 'NO_TICKETS';
+      throw e;
+    }
+    const prizes = [10, 20, 30, 50, 80, 100, 200, 500];
+    const weights = [40, 25, 15, 10, 4, 3, 2, 1];
+    const total = weights.reduce((a, b) => a + b, 0);
+    let roll = Math.random() * total;
+    let idx = 0;
+    for (let i = 0; i < weights.length; i++) {
+      if (roll < weights[i]) { idx = i; break; }
+      roll -= weights[i];
+    }
+    d.tickets -= 1;
+    d.balance += prizes[idx];
+    d.lastSpinAt = new Date().toISOString();
+    saveOffline(d);
+    return {
+      ok: true,
+      sliceIndex: idx,
+      prizeAmount: prizes[idx],
+      newBalance: Math.round(d.balance * 100) / 100,
+      newTickets: d.tickets
+    };
+  }
+  if (path === '/api/tasks/complete') {
+    const taskNumber = Number(body.taskNumber || 0);
+    if (taskNumber !== d.completedTasksToday + 1) {
+      const e = new Error('OUT_OF_ORDER');
+      e.code = 'OUT_OF_ORDER';
+      throw e;
+    }
+    d.completedTasksToday += 1;
+    d.totalTasksCompleted += 1;
+    d.tickets += 1;
+    let milestoneBonus = 0;
+    if (taskNumber % 10 === 0 && taskNumber > d.milestoneClaimedUpTo) {
+      milestoneBonus = 5;
+      d.tickets += 5;
+      d.milestoneClaimedUpTo = taskNumber;
+    }
+    saveOffline(d);
+    return {
+      ok: true,
+      newTickets: d.tickets,
+      completedTasksToday: d.completedTasksToday,
+      taskNumber,
+      milestoneBonus,
+      milestoneReached: milestoneBonus > 0 ? taskNumber : 0
+    };
+  }
+  if (path === '/api/tasks/penalty') {
+    d.penaltyTasks = (d.penaltyTasks || 0) + 2;
+    saveOffline(d);
+    return { ok: true, penaltyTasks: d.penaltyTasks, addedPenalty: 2 };
+  }
+  if (path === '/api/daily/claim') {
+    if (d.lastDailyClaimAt) {
+      const last = new Date(d.lastDailyClaimAt).getTime();
+      if (Date.now() - last < 24 * 3600 * 1000) {
+        const e = new Error('ALREADY_CLAIMED');
+        e.code = 'ALREADY_CLAIMED';
+        throw e;
+      }
+    }
+    d.tickets += 1;
+    d.lastDailyClaimAt = new Date().toISOString();
+    saveOffline(d);
+    return { ok: true, newTickets: d.tickets, lastDailyClaimAt: d.lastDailyClaimAt };
+  }
+  if (path === '/api/giftcode/redeem') {
+    const code = String(body.code || '').trim().toUpperCase();
+    if (d.giftCodesUsed && d.giftCodesUsed.includes(code)) {
+      const e = new Error('ALREADY_CLAIMED');
+      e.code = 'ALREADY_CLAIMED';
+      throw e;
+    }
+    let ticketsAdded = 0;
+    let etbAdded = 0;
+    if (code === 'WELCOME2026') { ticketsAdded = 5; etbAdded = 10; }
+    else if (code === 'VIP100') { ticketsAdded = 10; etbAdded = 100; }
+    else {
+      const e = new Error('INVALID_CODE');
+      e.code = 'INVALID_CODE';
+      throw e;
+    }
+    d.giftCodesUsed = d.giftCodesUsed || [];
+    d.giftCodesUsed.push(code);
+    d.tickets += ticketsAdded;
+    d.balance += etbAdded;
+    saveOffline(d);
+    return {
+      ok: true,
+      ticketsAdded,
+      etbAdded,
+      newTickets: d.tickets,
+      newBalance: Math.round(d.balance * 100) / 100
+    };
+  }
+  if (path === '/api/team') {
+    return {
+      ok: true,
+      referralCount: d.referralCount || 0,
+      qualifiedCount: d.qualifiedReferralCount || 0,
+      commissionEarned: Math.round((d.commissionEarned || 0) * 100) / 100,
+      friends: d.friends || [],
+      commissions: d.commissions || []
+    };
+  }
+  if (path === '/api/withdrawals') {
+    return { ok: true, withdrawals: d.withdrawals || [] };
+  }
+  if (path === '/api/withdraw/eligibility') {
+    const minW = 2000, minR = 8, minT = 50;
+    const okBal = d.balance >= minW;
+    const okRefs = d.referralCount >= minR;
+    const okTasks = d.totalTasksCompleted >= minT;
+    const noPenalty = (d.penaltyTasks || 0) === 0;
+    return {
+      ok: true,
+      minWithdrawEtb: minW,
+      minReferrals: minR,
+      minTasks: minT,
+      balance: d.balance,
+      referralCount: d.referralCount,
+      totalTasks: d.totalTasksCompleted,
+      penaltyTasks: d.penaltyTasks || 0,
+      canWithdraw: okBal && okRefs && okTasks && noPenalty,
+      conditions: { balance: okBal, referrals: okRefs, tasks: okTasks, noPenalty }
+    };
+  }
+  if (path === '/api/withdraw') {
+    const amount = Number(body.amount || 0);
+    if (amount > d.balance) {
+      const e = new Error('INSUFFICIENT_BALANCE');
+      e.code = 'INSUFFICIENT_BALANCE';
+      throw e;
+    }
+    d.balance -= amount;
+    d.withdrawals = d.withdrawals || [];
+    d.withdrawals.unshift({
+      id: Date.now(),
+      amount,
+      method: body.method,
+      accountName: body.accountName,
+      accountDetail: body.accountDetail,
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    });
+    saveOffline(d);
+    return { ok: true, withdrawalId: Date.now(), amount, status: 'pending' };
+  }
+  if (path === '/api/channel/check') {
+    if (d.channelJoinClaimed) {
+      const e = new Error('ALREADY_CLAIMED');
+      e.code = 'ALREADY_CLAIMED';
+      throw e;
+    }
+    d.channelJoinClaimed = true;
+    d.balance += 130;
+    saveOffline(d);
+    return { ok: true, rewardEtb: 130, newBalance: Math.round(d.balance * 100) / 100 };
+  }
+  if (path === '/api/channel/link') {
+    return { ok: true, url: 'https://t.me/EarnCraftProOfficial', rewardEtb: 130 };
+  }
+  if (path === '/api/admin/stats') {
+    return {
+      ok: true,
+      totalUsers: 1,
+      totalTasks: d.totalTasksCompleted,
+      pendingCount: (d.withdrawals || []).filter(w => w.status === 'pending').length,
+      pendingAmount: (d.withdrawals || []).filter(w => w.status === 'pending').reduce((s, w) => s + w.amount, 0),
+      totalPaid: (d.withdrawals || []).filter(w => w.status === 'approved').reduce((s, w) => s + w.amount, 0)
+    };
+  }
+  if (path === '/api/admin/withdrawals') {
+    return {
+      ok: true,
+      withdrawals: (d.withdrawals || []).map(w => ({
+        id: w.id,
+        telegramId: d.telegramId,
+        firstName: d.firstName,
+        username: d.username,
+        amount: w.amount,
+        method: w.method,
+        accountName: w.accountName,
+        accountDetail: w.accountDetail,
+        status: w.status,
+        createdAt: w.createdAt
+      }))
+    };
+  }
+  if (path === '/api/admin/withdrawals/' && path.endsWith('/approve')) {
+    return { ok: true };
+  }
+  if (path.includes('/api/admin/withdrawals/') && path.endsWith('/approve')) {
+    const id = Number(path.split('/')[4]);
+    const w = (d.withdrawals || []).find(x => x.id === id);
+    if (w) { w.status = 'approved'; saveOffline(d); }
+    return { ok: true };
+  }
+  if (path.includes('/api/admin/withdrawals/') && path.endsWith('/reject')) {
+    const id = Number(path.split('/')[4]);
+    const w = (d.withdrawals || []).find(x => x.id === id);
+    if (w) {
+      w.status = 'rejected';
+      d.balance += w.amount;
+      saveOffline(d);
+    }
+    return { ok: true, refunded: w ? w.amount : 0 };
+  }
+  if (path === '/api/admin/giftcode') {
+    return { ok: true };
+  }
+  return { ok: true };
+}
+
+/* ---------- TELEGRAM INIT ---------- */
+function initTelegram() {
+  try {
+    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    state.tg = tg;
+    if (tg) {
+      tg.ready();
+      tg.expand();
+      try {
+        tg.setHeaderColor('#120624');
+        tg.setBackgroundColor('#120624');
+      } catch (e) {}
+      state.initData = tg.initData || '';
+      state.isTelegram = !!state.initData && state.initData.length > 0;
+      if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        state.tgUser = tg.initDataUnsafe.user;
+      }
+    }
+    if (!state.tgUser) {
+      state.tgUser = {
+        id: 555000111,
+        first_name: 'Guest',
+        username: 'guest_preview',
+        photo_url: null
+      };
+      state.isTelegram = false;
+      state.isOffline = true;
+    }
+    renderAvatar();
+  } catch (e) {
+    console.error('[TG INIT ERROR]', e);
+  }
+}
+
+function renderAvatar() {
+  const wrap = document.getElementById('avatarWrap');
+  const u = state.tgUser;
+  if (!u || !wrap) return;
+  if (u.photo_url) {
+    wrap.innerHTML = `<img src="${u.photo_url}" alt="avatar" style="width:100%;height:100%;object-fit:cover;" />`;
+  } else {
+    const initials = ((u.first_name || 'U').slice(0, 1) + ((u.last_name || '').slice(0, 1))).toUpperCase();
+    wrap.textContent = initials || 'U';
+  }
+  document.getElementById('headerName').textContent = u.first_name || 'User';
+  document.getElementById('headerId').textContent = 'ID: ' + (u.id || '-');
+}
+
+/* ---------- HAPTICS + AUDIO ---------- */
+let audioCtx = null;
+function ensureAudio() {
+  try {
+    if (!audioCtx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) audioCtx = new AC();
+    }
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  } catch (e) {}
+}
+function playTick() {
+  try {
+    ensureAudio();
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'square';
+    osc.frequency.value = 1200;
+    gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.05);
+  } catch (e) {}
+}
+function playWin() {
+  try {
+    ensureAudio();
+    if (!audioCtx) return;
+    const notes = [523.25, 659.25, 783.99, 1046.50];
+    notes.forEach((f, i) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = f;
+      const t0 = audioCtx.currentTime + i * 0.12;
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(0.15, t0 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.35);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(t0);
+      osc.stop(t0 + 0.4);
+    });
+  } catch (e) {}
+}
+function playError() {
+  try {
+    ensureAudio();
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.value = 220;
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.2);
+  } catch (e) {}
+}
+function haptic(type) {
+  try {
+    const tg = state.tg;
+    if (!tg || !tg.HapticFeedback) return;
+    if (type === 'medium') tg.HapticFeedback.impactOccurred('medium');
+    else if (type === 'light') tg.HapticFeedback.impactOccurred('light');
+    else if (type === 'success') tg.HapticFeedback.notificationOccurred('success');
+    else if (type === 'error') tg.HapticFeedback.notificationOccurred('error');
+    else if (type === 'warning') tg.HapticFeedback.notificationOccurred('warning');
+  } catch (e) {}
+}
+
+/* ---------- UI HELPERS ---------- */
+function toast(message, ms = 2600) {
+  try {
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.textContent = message;
+    document.body.appendChild(el);
+    setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; }, ms - 300);
+    setTimeout(() => { try { el.remove(); } catch (e) {} }, ms);
+  } catch (e) {}
+}
+
+function openModal(html) {
+  document.getElementById('modalContent').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  setTimeout(() => { document.getElementById('modalContent').innerHTML = ''; }, 200);
+}
+document.getElementById('modalOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'modalOverlay') closeModal();
+});
+
+function applyI18n() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (key) el.textContent = t(key);
+  });
+  const lt = document.getElementById('langToggle');
+  if (lt) lt.textContent = state.lang === 'am' ? 'አማ / EN' : 'EN / አማ';
+  const sb = document.getElementById('spinBtn');
+  if (sb) sb.textContent = state.spinning ? t('spinBusy') : t('spin');
+  renderTaskList();
+  renderHistory();
+  renderFriends();
+  renderCommissions();
+  updateHeader();
+  updateGoalCard();
+  updateChannelCard();
+}
+
+/* ---------- RENDER ---------- */
+function updateHeader() {
+  const u = state.user;
+  if (!u) return;
+  document.getElementById('headerTickets').textContent = u.tickets;
+  document.getElementById('headerBalance').textContent = Number(u.balance).toFixed(2);
+  document.getElementById('profileBalance').textContent = Number(u.balance).toFixed(2);
+  document.getElementById('profileBalanceUsd').textContent = (Number(u.balance) / 200).toFixed(2);
+  document.getElementById('statTotalTasks').textContent = u.totalTasksCompleted;
+  document.getElementById('statTotalRefs').textContent = u.referralCount;
+  document.getElementById('statTickets').textContent = u.tickets;
+  document.getElementById('statPenalty').textContent = u.penaltyTasks || 0;
+  document.getElementById('tasksDone').textContent = u.completedTasksToday;
+  document.getElementById('tasksProgress').style.width = Math.min(100, (u.completedTasksToday / 100) * 100) + '%';
+  document.getElementById('adminPanel').style.display = u.isAdmin ? 'block' : 'none';
+  const pi = document.getElementById('penaltyInfo');
+  if (pi) {
+    if (u.penaltyTasks > 0) {
+      pi.style.display = 'block';
+      pi.textContent = `⚠️ ${u.penaltyTasks} ${state.lang === 'am' ? 'ቅጣት ተግባራት ቀርተዋል' : 'penalty tasks remaining'}`;
+    } else {
+      pi.style.display = 'none';
+    }
+  }
+  updateChannelCard();
+}
+
+function updateGoalCard() {
+  const u = state.user;
+  if (!u) return;
+  const minW = Number(state.config.minWithdrawEtb) || 2000;
+  const bal = Number(u.balance) || 0;
+  const pct = Math.min(100, (bal / minW) * 100);
+  document.getElementById('goalBal').textContent = bal.toFixed(2);
+  document.getElementById('goalMin').textContent = minW;
+  document.getElementById('goalProgress').style.width = pct + '%';
+  const remain = Math.max(0, minW - bal);
+  const helpEl = document.getElementById('goalHelp');
+  if (state.lang === 'am') {
+    helpEl.textContent = remain > 0
+      ? `ለገንዘብ ማውጣት ETB ${remain.toFixed(2)} ይቀርዎታል`
+      : '🎉 ለገንዘብ ማውጣት በቂ ቀሪ ሂሳብ አለዎት!';
+  } else {
+    helpEl.textContent = remain > 0
+      ? `ETB ${remain.toFixed(2)} left to withdraw`
+      : '🎉 You have enough balance to withdraw!';
+  }
+}
+
+function updateChannelCard() {
+  const card = document.getElementById('channelJoinCard');
+  const btn = document.getElementById('channelJoinBtn');
+  if (!card || !btn) return;
+  const u = state.user;
+  if (u && u.channelJoinClaimed) {
+    card.style.opacity = '0.6';
+    btn.textContent = t('verified');
+    btn.disabled = true;
+    btn.classList.remove('btn-gold');
+    btn.classList.add('btn-ghost');
+  } else {
+    card.style.opacity = '1';
+    btn.textContent = t('join');
+    btn.disabled = false;
+    btn.classList.add('btn-gold');
+    btn.classList.remove('btn-ghost');
+  }
+}
+
+/* ---------- WHEEL ---------- */
+const wheelSlices = [
+  { label: '10 ETB',  amount: 10,  color: '#7B2CBF' },
+  { label: '20 ETB',  amount: 20,  color: '#9D4EDD' },
+  { label: '30 ETB',  amount: 30,  color: '#7B2CBF' },
+  { label: '50 ETB',  amount: 50,  color: '#9D4EDD' },
+  { label: '80 ETB',  amount: 80,  color: '#7B2CBF' },
+  { label: '100 ETB', amount: 100, color: '#FFD700' },
+  { label: '200 ETB', amount: 200, color: '#F59E0B' },
+  { label: '500 ETB', amount: 500, color: '#FFD700' }
+];
+
+function drawWheel(rotationDeg) {
+  const canvas = document.getElementById('wheelCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const size = canvas.width;
+  const center = size / 2;
+  const radius = center - 14;
+  ctx.clearRect(0, 0, size, size);
+
+  ctx.beginPath();
+  ctx.arc(center, center, radius + 10, 0, 2 * Math.PI);
+  const rimGrad = ctx.createLinearGradient(0, 0, size, size);
+  rimGrad.addColorStop(0, '#FFD700');
+  rimGrad.addColorStop(0.5, '#F59E0B');
+  rimGrad.addColorStop(1, '#FFD700');
+  ctx.fillStyle = rimGrad;
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(center, center, radius + 3, 0, 2 * Math.PI);
+  ctx.fillStyle = '#1a0a33';
+  ctx.fill();
+
+  const n = wheelSlices.length;
+  const angleStep = (2 * Math.PI) / n;
+  const rotRad = (rotationDeg * Math.PI) / 180;
+
+  for (let i = 0; i < n; i++) {
+    const start = i * angleStep + rotRad - Math.PI / 2;
+    const end = start + angleStep;
+    ctx.beginPath();
+    ctx.moveTo(center, center);
+    ctx.arc(center, center, radius, start, end);
+    ctx.closePath();
+    ctx.fillStyle = wheelSlices[i].color;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,215,0,0.6)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    const mid = start + angleStep / 2;
+    const labelR = radius * 0.68;
+    const lx = center + Math.cos(mid) * labelR;
+    const ly = center + Math.sin(mid) * labelR;
+    ctx.save();
+    ctx.translate(lx, ly);
+    ctx.rotate(mid + Math.PI / 2);
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 22px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+    ctx.shadowBlur = 6;
+    ctx.fillText(wheelSlices[i].label, 0, 0);
+    ctx.restore();
+  }
+
+  ctx.beginPath();
+  ctx.arc(center, center, 46, 0, 2 * Math.PI);
+  ctx.fillStyle = '#1a0a33';
+  ctx.fill();
+  ctx.strokeStyle = '#FFD700';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+}
+
+/* ---------- SPIN ---------- */
+async function doSpin() {
+  try {
+    if (state.spinning) return;
+    if (!state.user) return;
+    if (state.user.tickets <= 0) {
+      openModal(`
+        <div class="text-center">
+          <div class="text-5xl mb-3">🎟️</div>
+          <div class="text-lg font-bold mb-2">${t('noTickets')}</div>
+          <div class="text-sm mb-4" style="color:var(--muted);">${t('noTicketsMsg')}</div>
+          <button class="btn-primary w-full" onclick="closeModal();switchTab('tasks')">${t('navTasks')} →</button>
+        </div>
+      `);
+      return;
+    }
+    state.spinning = true;
+    haptic('medium');
+    ensureAudio();
+    const btn = document.getElementById('spinBtn');
+    btn.disabled = true;
+    document.getElementById('spinStatus').textContent = t('spinBusy');
+
+    let result;
+    try {
+      result = await api('/api/spin', {});
+    } catch (err) {
+      state.spinning = false;
+      btn.disabled = false;
+      document.getElementById('spinStatus').textContent = '';
+      haptic('error');
+      playError();
+      if (err.code === 'NO_TICKETS') toast(t('noTickets'), 2400);
+      else if (err.code === 'TOO_FAST') toast('⏳ ' + t('spinBusy'), 1600);
+      else toast(t('error') + ': ' + (err.code || 'SPIN'), 2600);
+      return;
+    }
+
+    const sliceIndex = result.sliceIndex;
+    const n = wheelSlices.length;
+    const anglePerSlice = 360 / n;
+    const targetSliceCenterDeg = sliceIndex * anglePerSlice + anglePerSlice / 2;
+    const targetRotation = 360 * 5 + (360 - targetSliceCenterDeg);
+    const startRotation = state.wheelRotation % 360;
+    const totalRotation = (targetRotation - startRotation + 360 * 5) % 360 + 360 * 5;
+    const finalRotation = state.wheelRotation + totalRotation;
+
+    const duration = 4000;
+    const startTime = performance.now();
+    let lastTickBucket = -1;
+
+    function tick(now) {
+      const elapsed = now - startTime;
+      const p = Math.min(1, elapsed / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      const current = state.wheelRotation + totalRotation * eased;
+      drawWheel(current);
+
+      const bucket = Math.floor(current / 20);
+      if (bucket !== lastTickBucket) {
+        lastTickBucket = bucket;
+        playTick();
+        if (p < 0.97) haptic('light');
+      }
+
+      if (p < 1) requestAnimationFrame(tick);
+      else {
+        state.wheelRotation = finalRotation;
+        drawWheel(state.wheelRotation);
+        finishSpin(result);
+      }
+    }
+    requestAnimationFrame(tick);
+  } catch (e) {
+    console.error('[SPIN ERR]', e);
+    state.spinning = false;
+    document.getElementById('spinBtn').disabled = false;
+    toast(t('error'), 2000);
+  }
+}
+
+function finishSpin(result) {
+  try {
+    state.spinning = false;
+    document.getElementById('spinBtn').disabled = false;
+    document.getElementById('spinBtn').textContent = t('spin');
+    document.getElementById('spinStatus').textContent = '';
+
+    if (state.user) {
+      state.user.balance = result.newBalance;
+      state.user.tickets = result.newTickets;
+      updateHeader();
+    }
+
+    haptic('success');
+    playWin();
+    try {
+      confetti({
+        particleCount: 160,
+        spread: 100,
+        origin: { y: 0.6 },
+        colors: ['#FFD700', '#F59E0B', '#9D4EDD', '#7B2CBF', '#ffffff']
+      });
+    } catch (e) {}
+
+    const title = state.lang === 'am'
+      ? `እንኳን ደስ አለዎት! ${result.prizeAmount} ETB አሸንፈዋል!`
+      : `Congratulations! You won ${result.prizeAmount} ETB!`;
+
+    openModal(`
+      <div class="text-center">
+        <div class="text-6xl mb-2">🎉</div>
+        <div class="text-xl font-extrabold gold-text mb-3">${title}</div>
+        <div class="text-5xl font-extrabold gold-text mb-4">+${result.prizeAmount} ETB</div>
+        <div class="text-sm mb-5" style="color:var(--muted);">🎟️ ${state.user ? state.user.tickets : result.newTickets} ${state.lang === 'am' ? 'ቲኬቶች ቀርተዋል' : 'tickets left'}</div>
+        <button class="btn-primary w-full" onclick="closeModal()">${t('ok')}</button>
+      </div>
+    `);
+  } catch (e) {
+    console.error('[FINISH SPIN ERR]', e);
+  }
+}
+
+/* ---------- TASKS ---------- */
+function renderTaskList() {
+  const container = document.getElementById('taskList');
+  const u = state.user;
+  if (!container) return;
+  if (!u) { container.innerHTML = ''; return; }
+  const done = u.completedTasksToday;
+  let html = '';
+  for (let i = 1; i <= 100; i++) {
+    if (i <= done) {
+      html += `<div class="task-card done">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">✅</span>
+          <div>
+            <div class="font-bold text-sm">${state.lang === 'am' ? 'ተግባር' : 'Task'} #${i}</div>
+            <div class="text-[11px]" style="color:#22c55e;">${t('taskDone')}</div>
+          </div>
+        </div>
+      </div>`;
+    } else if (i === done + 1) {
+      html += `<div class="task-card active">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">🎬</span>
+          <div>
+            <div class="font-bold text-sm">${state.lang === 'am' ? 'ተግባር' : 'Task'} #${i}</div>
+            <div class="text-[11px]" style="color:var(--gold-1);">${t('adWatch')}</div>
+          </div>
+        </div>
+        <button class="btn-primary text-xs px-3 py-2" onclick="watchAdTask(${i})">▶ ${t('adWatch')}</button>
+      </div>`;
+    } else {
+      html += `<div class="task-card locked">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">🔒</span>
+          <div>
+            <div class="font-bold text-sm">${state.lang === 'am' ? 'ተግባር' : 'Task'} #${i}</div>
+            <div class="text-[11px]" style="color:var(--muted);">${t('locked')}</div>
+          </div>
+        </div>
+      </div>`;
+    }
+  }
+  container.innerHTML = html;
+}
+
+/* ---------- ADSGRAM ---------- */
+function initAdsgram() {
+  try {
+    if (!state.config.adsgramBlockId) {
+      console.warn('[ADSGRAM] No block ID configured — offline mock will be used');
+      return;
+    }
+    if (!window.Adsgram) {
+      console.warn('[ADSGRAM] SDK not loaded — offline mock will be used');
+      return;
+    }
+    state.adController = window.Adsgram.init({ blockId: String(state.config.adsgramBlockId) });
+  } catch (e) {
+    console.error('[ADSGRAM INIT ERR]', e);
+  }
+}
+
+async function watchAdTask(taskNumber) {
+  try {
+    if (state.user && state.user.tickets !== undefined) {
+      ensureAudio();
+    }
+    haptic('medium');
+
+    const showAd = () => {
+      return new Promise((resolve, reject) => {
+        if (state.adController && !state.isOffline) {
+          state.adController.show().then(() => resolve()).catch((e) => reject(e));
+        } else {
+          const delay = 800 + Math.random() * 700;
+          setTimeout(() => {
+            const skipChance = 0.1;
+            if (Math.random() < skipChance) reject(new Error('AD_SKIPPED'));
+            else resolve();
+          }, delay);
+        }
+      });
+    };
+
+    try {
+      await showAd();
+      const res = await api('/api/tasks/complete', { taskNumber });
+      if (state.user) {
+        state.user.tickets = res.newTickets;
+        state.user.completedTasksToday = res.completedTasksToday;
+        state.user.totalTasksCompleted = (state.user.totalTasksCompleted || 0) + 1;
+        updateHeader();
+      }
+      haptic('success');
+      playTick();
+      try {
+        confetti({ particleCount: 60, spread: 70, origin: { y: 0.65 }, colors: ['#FFD700', '#9D4EDD'] });
+      } catch (e) {}
+      toast('🎟️ +1 ' + t('tickets'), 1800);
+      renderTaskList();
+
+      if (res.milestoneBonus && res.milestoneReached) {
+        setTimeout(() => showMilestone(res.milestoneReached, res.milestoneBonus), 400);
+      }
+    } catch (err) {
+      if (err && (err.code === 'OUT_OF_ORDER' || err.code === 'DAILY_LIMIT_REACHED')) {
+        haptic('error');
+        toast(t('error') + ': ' + err.code, 2400);
+        return;
+      }
+      /* Penalty for ad skip */
+      haptic('error');
+      playError();
+      try {
+        const pres = await api('/api/tasks/penalty', {});
+        if (state.user) state.user.penaltyTasks = pres.penaltyTasks;
+        updateHeader();
+      } catch (e) {}
+      const pmsg = document.getElementById('penaltyMsg');
+      if (pmsg) {
+        pmsg.textContent = state.lang === 'am'
+          ? 'ቅጣት +2 ተጨማሪ ተግባራት ተጨምሮብዎታል።'
+          : '+2 penalty tasks added.';
+      }
+      document.getElementById('penaltyModal').classList.add('open');
+      renderTaskList();
+    }
+  } catch (e) {
+    console.error('[WATCH AD ERR]', e);
+    toast(t('adNotCompleted'), 2400);
+  }
+}
+
+function showMilestone(reached, bonus) {
+  try {
+    haptic('success');
+    playWin();
+    try { confetti({ particleCount: 140, spread: 110, origin: { y: 0.6 }, colors: ['#FFD700','#F59E0B','#9D4EDD','#7B2CBF'] }); } catch (e) {}
+    const msg = document.getElementById('milestoneMsg');
+    if (msg) {
+      msg.textContent = state.lang === 'am'
+        ? `ተግባር #${reached} ተጠናቅቋል! +${bonus} ተጨማሪ ቲኬቶች ተሸልመዋል!`
+        : `Task #${reached} complete! +${bonus} bonus tickets awarded!`;
+    }
+    document.getElementById('milestoneModal').classList.add('open');
+  } catch (e) {}
+}
+
+/* ---------- DAILY ---------- */
+function updateDailyTimer() {
+  try {
+    const el = document.getElementById('dailyTimer');
+    if (!el) return;
+    const u = state.user;
+    if (!u || !u.lastDailyClaimAt) {
+      el.textContent = state.lang === 'am' ? 'ዝግጁ ✓' : 'Ready ✓';
+      return;
+    }
+    const last = new Date(u.lastDailyClaimAt.includes('Z') ? u.lastDailyClaimAt : u.lastDailyClaimAt + 'Z').getTime();
+    const next = last + 24 * 3600 * 1000;
+    const diff = next - Date.now();
+    if (diff <= 0) {
+      el.textContent = state.lang === 'am' ? 'ዝግጁ ✓' : 'Ready ✓';
+      return;
+    }
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  } catch (e) {}
+}
+
+function openDailyModal() {
+  try {
+    const u = state.user;
+    if (!u) return;
+    let canClaim = true;
+    if (u.lastDailyClaimAt) {
+      const last = new Date(u.lastDailyClaimAt.includes('Z') ? u.lastDailyClaimAt : u.lastDailyClaimAt + 'Z').getTime();
+      if (Date.now() < last + 24 * 3600 * 1000) canClaim = false;
+    }
+    let daysHtml = '';
+    for (let d = 1; d <= 7; d++) {
+      daysHtml += `<div class="rounded-lg p-2 text-center" style="background: rgba(157,78,221,0.12); border:1px solid var(--card-border);">
+        <div class="text-xs" style="color:var(--muted);">${state.lang === 'am' ? 'ቀን' : 'Day'}</div>
+        <div class="text-xl">${d === 1 ? '🎟️' : '🎁'}</div>
+        <div class="text-xs font-bold">+1</div>
+      </div>`;
+    }
+    const btnHtml = canClaim
+      ? `<button id="claimDailyBtn" class="btn-gold w-full mt-4">${state.lang === 'am' ? 'ዕለታዊ ሽልማት ተቀበል' : 'Claim Daily Reward'}</button>`
+      : `<button class="btn-ghost w-full mt-4" disabled>${t('alreadyClaimedMsg')}</button>`;
+    openModal(`
+      <div class="text-center">
+        <div class="text-5xl mb-2">📅</div>
+        <div class="text-xl font-extrabold gold-text mb-2">${t('dailyCheckin')}</div>
+        <div class="grid grid-cols-4 gap-2 mt-3">${daysHtml}</div>
+        ${btnHtml}
+        <button class="btn-ghost w-full mt-2" onclick="closeModal()">${t('close')}</button>
+      </div>
+    `);
+    if (canClaim) {
+      const btn = document.getElementById('claimDailyBtn');
+      if (btn) btn.onclick = claimDaily;
+    }
+  } catch (e) { console.error('[DAILY MODAL ERR]', e); }
+}
+
+async function claimDaily() {
+  try {
+    haptic('medium');
+    ensureAudio();
+    const res = await api('/api/daily/claim', {});
+    if (state.user) {
+      state.user.tickets = res.newTickets;
+      state.user.lastDailyClaimAt = res.lastDailyClaimAt;
+      updateHeader();
+    }
+    haptic('success');
+    playWin();
+    try { confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 }, colors: ['#FFD700','#9D4EDD'] }); } catch (e) {}
+    closeModal();
+    toast('🎉 ' + t('claimSuccessMsg'), 2400);
+    updateDailyTimer();
+  } catch (err) {
+    haptic('error');
+    playError();
+    if (err.code === 'ALREADY_CLAIMED') toast(t('alreadyClaimedMsg'), 2400);
+    else toast(t('error') + ': ' + (err.code || 'CLAIM'), 2400);
+  }
+}
+
+/* ---------- GIFT ---------- */
+function openGiftModal() {
+  openModal(`
+    <div class="text-center">
+      <div class="text-5xl mb-2">🎟️</div>
+      <div class="text-xl font-extrabold gold-text mb-3">${t('giftCodeTitle')}</div>
+      <input id="giftInput" type="text" class="input-field text-center mb-3" placeholder="WELCOME2026" style="text-transform:uppercase; letter-spacing:2px; font-weight:700;" />
+      <button id="redeemGiftBtn" class="btn-primary w-full mb-2">${t('redeem')}</button>
+      <button class="btn-ghost w-full" onclick="closeModal()">${t('close')}</button>
+    </div>
+  `);
+  document.getElementById('redeemGiftBtn').onclick = redeemGift;
+}
+
+async function redeemGift() {
+  try {
+    const input = document.getElementById('giftInput');
+    if (!input) return;
+    const code = input.value.trim();
+    if (!code) { toast(t('invalidCode'), 1800); return; }
+    haptic('medium');
+    const res = await api('/api/giftcode/redeem', { code });
+    if (state.user) {
+      state.user.tickets = res.newTickets;
+      state.user.balance = res.newBalance;
+      updateHeader();
+    }
+    haptic('success');
+    playWin();
+    try { confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 }, colors: ['#FFD700','#9D4EDD'] }); } catch (e) {}
+    closeModal();
+    toast(`🎉 +${res.ticketsAdded} 🎟️ +${res.etbAdded} ETB`, 2600);
+  } catch (err) {
+    haptic('error');
+    playError();
+    let msg = t('invalidCode');
+    if (err.code === 'ALREADY_CLAIMED') msg = state.lang === 'am' ? 'ቀድመው ተጠቅመዋል' : 'Already redeemed';
+    if (err.code === 'EXPIRED') msg = state.lang === 'am' ? 'ጊዜው አልቋል' : 'Expired';
+    if (err.code === 'EXHAUSTED') msg = state.lang === 'am' ? 'ኮዱ አልቋል' : 'Code exhausted';
+    toast(msg, 2400);
+  }
+}
+
+/* ---------- CHANNEL JOIN ---------- */
+async function channelJoinFlow() {
+  try {
+    haptic('medium');
+    const u = state.user;
+    if (u && u.channelJoinClaimed) {
+      toast(t('channelClaimedMsg'), 2200);
+      return;
+    }
+    const linkRes = await api('/api/channel/link', {}, 'GET');
+    const url = linkRes.url || 'https://t.me/EarnCraftProOfficial';
+    if (state.tg && state.tg.openTelegramLink) state.tg.openTelegramLink(url);
+    else window.open(url, '_blank');
+
+    setTimeout(() => {
+      openModal(`
+        <div class="text-center">
+          <div class="text-5xl mb-2">📢</div>
+          <div class="text-xl font-extrabold gold-text mb-2">${state.lang === 'am' ? 'ቻናሉን ተቀላቅለዋል?' : 'Joined the channel?'}</div>
+          <div class="text-sm mb-4" style="color:var(--muted);">${state.lang === 'am' ? 'ሽልማትዎን ለማግኘት ያረጋግጡ (130 ETB)' : 'Verify to claim your 130 ETB reward'}</div>
+          <button id="channelVerifyBtn" class="btn-gold w-full mb-2">${t('verify')}</button>
+          <button class="btn-ghost w-full" onclick="closeModal()">${t('close')}</button>
+        </div>
+      `);
+      const vb = document.getElementById('channelVerifyBtn');
+      if (vb) vb.onclick = verifyChannelJoin;
+    }, 1200);
+  } catch (e) {
+    console.error('[CHANNEL JOIN ERR]', e);
+  }
+}
+
+async function verifyChannelJoin() {
+  try {
+    haptic('medium');
+    const res = await api('/api/channel/check', {});
+    if (state.user) {
+      state.user.channelJoinClaimed = true;
+      state.user.balance = res.newBalance;
+      updateHeader();
+    }
+    haptic('success');
+    playWin();
+    try { confetti({ particleCount: 140, spread: 100, origin: { y: 0.6 }, colors: ['#FFD700','#9D4EDD'] }); } catch (e) {}
+    closeModal();
+    toast(`🎉 +${res.rewardEtb} ETB`, 2800);
+  } catch (err) {
+    haptic('error');
+    playError();
+    if (err.code === 'ALREADY_CLAIMED') toast(t('channelClaimedMsg'), 2400);
+    else toast(t('error') + ': ' + (err.code || 'CHECK'), 2400);
+  }
+}
+
+/* ---------- TEAM ---------- */
+async function loadTeam() {
+  try {
+    const res = await api('/api/team', {}, 'GET');
+    state.team = res;
+    document.getElementById('teamTotal').textContent = res.referralCount || 0;
+    document.getElementById('teamActive').textContent = res.qualifiedCount || 0;
+    document.getElementById('teamMilestoneNum').textContent = res.referralCount || 0;
+    document.getElementById('milestoneProgress').style.width = Math.min(100, ((res.referralCount || 0) / 8) * 100) + '%';
+    document.getElementById('commissionEarned').textContent = Number(res.commissionEarned || 0).toFixed(2);
+    renderFriends();
+    renderCommissions();
+  } catch (e) { console.error('[LOAD TEAM ERR]', e); }
+}
+
+function renderFriends() {
+  const el = document.getElementById('friendList');
+  if (!el) return;
+  const friends = state.team.friends || [];
+  if (!friends.length) {
+    el.innerHTML = `<div class="text-sm text-center py-6" style="color:var(--muted);">${t('noFriends')}</div>`;
+    return;
+  }
+  el.innerHTML = friends.map(f => `
+    <div class="flex items-center justify-between py-2 border-b" style="border-color: rgba(186,104,255,0.12);">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style="background: linear-gradient(135deg,#7B2CBF,#9D4EDD);">
+          ${escapeHtml((f.name || 'U').slice(0,1).toUpperCase())}
+        </div>
+        <div>
+          <div class="text-sm font-bold">${escapeHtml(f.name || 'User')}</div>
+          <div class="text-[11px]" style="color:var(--muted);">${formatDate(f.joinedAt || f.createdAt || '')}</div>
+        </div>
+      </div>
+      <div class="text-right">
+        <span class="pill ${f.qualified ? 'pill-gold' : ''}" style="font-size:10px;">${f.qualified ? (state.lang === 'am' ? 'ንቁ' : 'Active') : (state.lang === 'am' ? 'አዲስ' : 'New')}</span>
+        ${f.commission ? `<div class="text-[10px] gold-text font-bold mt-1">+${Number(f.commission).toFixed(2)} ETB</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderCommissions() {
+  const el = document.getElementById('commissionList');
+  const earned = document.getElementById('commissionEarned');
+  if (!el) return;
+  const list = state.team.commissions || [];
+  if (earned) earned.textContent = Number(state.team.commissionEarned || 0).toFixed(2);
+  if (!list.length) {
+    el.innerHTML = `<div class="text-sm text-center py-4" style="color:var(--muted);">${t('noCommissions')}</div>`;
+    return;
+  }
+  el.innerHTML = list.map(c => `
+    <div class="commission-item">
+      <div class="flex justify-between items-center">
+        <div>
+          <div class="text-sm font-bold">${escapeHtml(c.friendName || 'Friend')}</div>
+          <div class="text-[11px]" style="color:var(--muted);">${(c.sourceType || '').toUpperCase()} · ${formatDate(c.createdAt || '')}</div>
+        </div>
+        <div class="text-sm font-extrabold gold-text">+${Number(c.commissionAmount || 0).toFixed(2)} ETB</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ---------- HISTORY ---------- */
+async function loadWithdrawals() {
+  try {
+    const res = await api('/api/withdrawals', {}, 'GET');
+    state.withdrawals = res.withdrawals || [];
+    renderHistory();
+  } catch (e) { console.error('[LOAD WITHDRAWALS ERR]', e); }
+}
+
+function renderHistory() {
+  const el = document.getElementById('historyList');
+  if (!el) return;
+  const list = state.withdrawals || [];
+  if (!list.length) {
+    el.innerHTML = `<div class="text-sm text-center py-4" style="color:var(--muted);">${t('noHistory')}</div>`;
+    return;
+  }
+  el.innerHTML = list.map(w => {
+    let statusText = t('pending');
+    let statusColor = '#F59E0B';
+    if (w.status === 'approved') { statusText = t('approved'); statusColor = '#22c55e'; }
+    if (w.status === 'rejected') { statusText = t('rejected'); statusColor = '#ef4444'; }
+    return `<div class="py-2 border-b" style="border-color: rgba(186,104,255,0.12);">
+      <div class="flex justify-between items-center">
+        <div>
+          <div class="text-sm font-bold gold-text">ETB ${Number(w.amount).toFixed(2)}</div>
+          <div class="text-[11px]" style="color:var(--muted);">${formatDate(w.createdAt)} · ${(w.method || '').toUpperCase()}</div>
+        </div>
+        <span class="pill" style="border-color:${statusColor}; color:${statusColor}; font-size:11px;">${statusText}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ---------- HELPERS ---------- */
+function formatDate(str) {
+  try {
+    if (!str) return '';
+    const d = new Date(str.includes('T') ? str : str + 'Z');
+    if (isNaN(d.getTime())) return str;
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  } catch (e) { return str || ''; }
+}
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+/* ---------- WITHDRAW ---------- */
+function openWithdrawModal() {
+  try {
+    const u = state.user;
+    if (!u) return;
+    const minW = Number(state.config.minWithdrawEtb) || 2000;
+    const minR = Number(state.config.minReferrals) || 8;
+    const minT = Number(state.config.minTasks) || 50;
+    const penalty = u.penaltyTasks || 0;
+
+    const okBal = Number(u.balance) >= minW;
+    const okR = (u.referralCount || 0) >= minR;
+    const okT = (u.totalTasksCompleted || 0) >= minT && penalty === 0;
+    const canWithdraw = okBal && okR && okT;
+
+    function row(ok, label, value, extra) {
+      return `<div class="cond-row">
+        <div class="flex items-center gap-2">
+          <span style="font-size:18px;">${ok ? '✅' : '❌'}</span>
+          <span class="text-sm">${label}</span>
+        </div>
+        <span class="text-xs font-bold" style="color:${ok ? '#22c55e' : '#ef4444'}">${value}${extra || ''}</span>
+      </div>`;
+    }
+
+    openModal(`
+      <div>
+        <div class="text-center mb-3">
+          <div class="text-4xl mb-1">💸</div>
+          <div class="text-xl font-extrabold gold-text">${t('withdrawTitle')}</div>
+          <div class="text-xs mt-1" style="color:var(--muted);">${state.lang === 'am' ? 'ዝቅተኛ፡ 2,000 ETB ($10)' : 'Minimum: 2,000 ETB ($10)'}</div>
+        </div>
+        <div class="mb-4">
+          ${row(okBal, t('reqBalance'), `ETB ${Number(u.balance).toFixed(2)} / ${minW}`)}
+          ${row(okR, t('reqRefs'), `${u.referralCount || 0} / ${minR}`)}
+          ${row(okT, t('reqTasks'), `${u.totalTasksCompleted || 0} / ${minT}`, penalty > 0 ? ` (+${penalty} ${state.lang === 'am' ? 'ቅጣት' : 'penalty'})` : '')}
+        </div>
+        <div class="mb-3">
+          <label class="input-label">${t('paymentMethod')}</label>
+          <select id="wMethod" class="input-field">
+            <option value="telebirr">📱 ቴሌብር (Telebirr)</option>
+            <option value="cbe">🏦 CBE (የኢትዮጵያ ንግድ ባንክ)</option>
+            <option value="paypal">💳 PayPal</option>
+            <option value="btc">₿ Bitcoin (BTC)</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="input-label">${t('accountName')}</label>
+          <input id="wName" type="text" class="input-field" placeholder="Abebe Kebede" />
+        </div>
+        <div class="mb-3">
+          <label class="input-label">${t('accountDetail')}</label>
+          <input id="wDetail" type="text" class="input-field" placeholder="09xxxxxxxx / 1000xxxxxx / email / bc1..." />
+        </div>
+        <div class="mb-3">
+          <label class="input-label">${t('amountETB')}</label>
+          <input id="wAmount" type="number" inputmode="decimal" class="input-field" placeholder="${minW}" min="${minW}" />
+        </div>
+        <button id="wSubmitBtn" class="btn-gold w-full mb-2" ${canWithdraw ? '' : 'disabled'}>${t('submit')}</button>
+        <button class="btn-ghost w-full" onclick="closeModal()">${t('close')}</button>
+      </div>
+    `);
+
+    if (canWithdraw) {
+      document.getElementById('wSubmitBtn').onclick = submitWithdraw;
+    }
+  } catch (e) { console.error('[WITHDRAW MODAL ERR]', e); }
+}
+
+async function submitWithdraw() {
+  try {
+    const method = document.getElementById('wMethod').value;
+    const accountName = document.getElementById('wName').value.trim();
+    const accountDetail = document.getElementById('wDetail').value.trim();
+    const amount = parseFloat(document.getElementById('wAmount').value);
+    if (!accountName || !accountDetail || !Number.isFinite(amount)) {
+      toast(t('error') + ': fill all fields', 2200);
+      haptic('error');
+      playError();
+      return;
+    }
+    haptic('medium');
+    const res = await api('/api/withdraw', { method, accountName, accountDetail, amount });
+    if (state.user) {
+      state.user.balance = Math.max(0, Number(state.user.balance) - amount);
+      updateHeader();
+    }
+    haptic('success');
+    playWin();
+    closeModal();
+    toast('🎉 ' + t('successWithdraw'), 2800);
+    await loadWithdrawals();
+  } catch (err) {
+    haptic('error');
+    playError();
+    let msg = t('error');
+    if (err.code === 'BELOW_MIN_AMOUNT') msg = state.lang === 'am' ? 'ዝቅተኛ መጠን' : 'Below minimum';
+    if (err.code === 'INSUFFICIENT_BALANCE') msg = state.lang === 'am' ? 'ቀሪ ሂሳብ አይበቃም' : 'Insufficient balance';
+    if (err.code === 'NOT_ENOUGH_REFERRALS') msg = state.lang === 'am' ? 'በቂ ጓደኞች የለዎትም' : 'Not enough referrals';
+    if (err.code === 'NOT_ENOUGH_TASKS') msg = state.lang === 'am' ? 'በቂ ተግባራት የለዎትም' : 'Not enough tasks';
+    if (err.code === 'MISSING_DETAILS') msg = state.lang === 'am' ? 'ሁሉንም መሙላት ያስፈልጋል' : 'Fill all fields';
+    if (err.code === 'INVALID_METHOD') msg = state.lang === 'am' ? 'የተሳሳተ ዘዴ' : 'Invalid method';
+    toast(msg, 2600);
+  }
+}
+
+/* ---------- ADMIN ---------- */
+function openAdminPanel() {
+  try {
+    openModal(`
+      <div>
+        <div class="text-center mb-3">
+          <div class="text-4xl mb-1">👑</div>
+          <div class="text-xl font-extrabold gold-text">${t('adminTitle')}</div>
+        </div>
+        <div id="adminStatsBox" class="mb-4">
+          <div class="text-center text-sm" style="color:var(--muted);">${t('loading')}</div>
+        </div>
+        <div class="mb-4">
+          <div class="font-bold text-sm mb-2">${t('manageWithdrawals')}</div>
+          <div id="adminWithdrawList" class="scroll-area">
+            <div class="text-center text-sm" style="color:var(--muted);">${t('loading')}</div>
+          </div>
+        </div>
+        <div class="mb-4">
+          <div class="font-bold text-sm mb-2">${t('createGift')}</div>
+          <input id="agCode" class="input-field mb-2" placeholder="${t('codeName')}" style="text-transform:uppercase;" />
+          <div class="grid grid-cols-3 gap-2 mb-2">
+            <input id="agTickets" class="input-field" type="number" placeholder="${t('ticketsAmt')}" />
+            <input id="agEtb" class="input-field" type="number" placeholder="${t('etbAmt')}" />
+            <input id="agMax" class="input-field" type="number" placeholder="${t('maxUses')}" />
+          </div>
+          <button id="agCreateBtn" class="btn-primary w-full">${t('create')}</button>
+        </div>
+        <button class="btn-ghost w-full" onclick="closeModal()">${t('close')}</button>
+      </div>
+    `);
+    loadAdminStats();
+    loadAdminWithdrawals();
+    document.getElementById('agCreateBtn').onclick = createGiftCode;
+  } catch (e) { console.error('[ADMIN MODAL ERR]', e); }
+}
+
+async function loadAdminStats() {
+  try {
+    const res = await api('/api/admin/stats', {}, 'GET');
+    const box = document.getElementById('adminStatsBox');
+    if (!box) return;
+    box.innerHTML = `
+      <div class="grid grid-cols-2 gap-2">
+        <div class="glass p-3 text-center">
+          <div class="text-xs" style="color:var(--muted);">${t('totalUsers')}</div>
+          <div class="text-xl font-extrabold gold-text">${res.totalUsers}</div>
+        </div>
+        <div class="glass p-3 text-center">
+          <div class="text-xs" style="color:var(--muted);">${t('adsWatched')}</div>
+          <div class="text-xl font-extrabold gold-text">${res.totalTasks}</div>
+        </div>
+        <div class="glass p-3 text-center col-span-2">
+          <div class="text-xs" style="color:var(--muted);">${t('pendingWithdrawals')}</div>
+          <div class="text-xl font-extrabold gold-text">${res.pendingCount} · ETB ${Number(res.pendingAmount).toFixed(2)}</div>
+        </div>
+      </div>
+    `;
+  } catch (e) { console.error('[ADMIN STATS LOAD ERR]', e); }
+}
+
+async function loadAdminWithdrawals() {
+  try {
+    const res = await api('/api/admin/withdrawals', {}, 'GET');
+    const box = document.getElementById('adminWithdrawList');
+    if (!box) return;
+    const pend = (res.withdrawals || []).filter(w => w.status === 'pending');
+    if (!pend.length) {
+      box.innerHTML = `<div class="text-center text-sm py-4" style="color:var(--muted);">${t('noPending')}</div>`;
+      return;
+    }
+    box.innerHTML = pend.map(w => `
+      <div class="glass p-3 mb-2">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="text-sm font-bold gold-text">ETB ${Number(w.amount).toFixed(2)}</div>
+            <div class="text-[11px]" style="color:var(--muted);">${escapeHtml(w.firstName || 'User')} · @${escapeHtml(w.username || '—')}</div>
+            <div class="text-[11px]" style="color:var(--muted);">${(w.method || '').toUpperCase()} · ${escapeHtml(w.accountName || '')}</div>
+            <div class="text-[11px]" style="color:var(--muted); word-break:break-all;">${escapeHtml(w.accountDetail || '')}</div>
+          </div>
+          <div class="flex flex-col gap-1 ml-2">
+            <button class="btn-gold text-xs px-2 py-1" onclick="adminApprove(${w.id})">${t('approve')}</button>
+            <button class="btn-ghost text-xs px-2 py-1" onclick="adminReject(${w.id})">${t('reject')}</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  } catch (e) { console.error('[ADMIN WITHDRAWALS LOAD ERR]', e); }
+}
+
+async function adminApprove(id) {
+  try {
+    haptic('medium');
+    await api('/api/admin/withdrawals/' + id + '/approve', {});
+    haptic('success');
+    toast('✓ Approved', 1800);
+    loadAdminStats();
+    loadAdminWithdrawals();
+  } catch (e) {
+    haptic('error');
+    toast(t('error'), 2000);
+  }
+}
+async function adminReject(id) {
+  try {
+    haptic('medium');
+    await api('/api/admin/withdrawals/' + id + '/reject', { note: '' });
+    haptic('success');
+    toast('✓ Rejected & Refunded', 2000);
+    loadAdminStats();
+    loadAdminWithdrawals();
+  } catch (e) {
+    haptic('error');
+    toast(t('error'), 2000);
+  }
+}
+async function createGiftCode() {
+  try {
+    const code = document.getElementById('agCode').value.trim().toUpperCase();
+    const tickets = Number(document.getElementById('agTickets').value || 0);
+    const etb = Number(document.getElementById('agEtb').value || 0);
+    const maxUses = Number(document.getElementById('agMax').value || 1);
+    if (!code) { toast('Code required', 1800); return; }
+    haptic('medium');
+    await api('/api/admin/giftcode', { code, tickets, etb, maxUses });
+    haptic('success');
+    toast(t('giftCreated'), 2000);
+    document.getElementById('agCode').value = '';
+    document.getElementById('agTickets').value = '';
+    document.getElementById('agEtb').value = '';
+    document.getElementById('agMax').value = '';
+  } catch (e) {
+    haptic('error');
+    toast(t('error'), 2000);
+  }
+}
+
+/* ---------- REFERRAL ---------- */
+function buildRefLink() {
+  const u = state.user;
+  if (!u) return '';
+  return `https://t.me/${state.config.botUsername}?startapp=ref_${u.telegramId}`;
+}
+function updateRefLink() {
+  const el = document.getElementById('refLinkBox');
+  if (!el) return;
+  el.textContent = buildRefLink();
+}
+async function copyRef() {
+  try {
+    haptic('medium');
+    const link = buildRefLink();
+    if (navigator.clipboard && navigator.clipboard.writeText) await navigator.clipboard.writeText(link);
+    else {
+      const ta = document.createElement('textarea');
+      ta.value = link;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+    toast(t('copied'), 1800);
+  } catch (e) { toast(t('copied'), 1800); }
+}
+function shareRef() {
+  try {
+    haptic('medium');
+    const link = buildRefLink();
+    const text = state.lang === 'am'
+      ? '👑 EarnCraft Pro — በየቀኑ ቲኬት ያሸንፉ፣ ብር ያግኙ!'
+      : '👑 EarnCraft Pro — Win tickets & earn ETB daily!';
+    const shareUrl = 'https://t.me/share/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(text);
+    if (state.tg && state.tg.openTelegramLink) state.tg.openTelegramLink(shareUrl);
+    else window.open(shareUrl, '_blank');
+  } catch (e) { console.error('[SHARE ERR]', e); }
+}
+
+/* ---------- TABS ---------- */
+function switchTab(name) {
+  try {
+    document.querySelectorAll('.tab-view').forEach(el => el.classList.remove('active'));
+    const view = document.getElementById('tab-' + name);
+    if (view) view.classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(el => {
+      el.classList.toggle('active', el.getAttribute('data-tab') === name);
+    });
+    haptic('light');
+    if (name === 'team') loadTeam();
+    if (name === 'profile') loadWithdrawals();
+    if (name === 'tasks') renderTaskList();
+  } catch (e) { console.error('[SWITCH TAB ERR]', e); }
+}
+
+/* ---------- BOOT ---------- */
+async function loadConfig() {
+  try {
+    const res = await api('/api/config', {}, 'GET');
+    if (res && res.ok) {
+      state.config = {
+        botUsername: res.botUsername || state.config.botUsername,
+        adsgramBlockId: res.adsgramBlockId || '',
+        minWithdrawEtb: res.minWithdrawEtb || 2000,
+        minReferrals: res.minReferrals || 8,
+        minTasks: res.minTasks || 50,
+        dailyTaskLimit: res.dailyTaskLimit || 100,
+        officialChannelUrl: res.officialChannelUrl || state.config.officialChannelUrl,
+        channelJoinRewardEtb: res.channelJoinRewardEtb || 130,
+        milestoneEvery: res.milestoneEvery || 10,
+        milestoneBonusTickets: res.milestoneBonusTickets || 5,
+        penaltyPerSkip: res.penaltyPerSkip || 2
+      };
+    }
+  } catch (e) {
+    console.warn('[CONFIG LOAD WARN]', e);
+    state.isOffline = true;
+  }
+}
+
+async function loadMe() {
+  try {
+    const res = await api('/api/auth', {});
+    state.user = res.user;
+    if (state.user && state.user.balance === 0 && state.user.tickets === 3 && !state.user.lastSpinAt) {
+      setTimeout(() => toast(t('welcomeBonus'), 3000), 800);
+    }
+    updateHeader();
+    updateRefLink();
+    updateDailyTimer();
+    if (state.user.isAdmin) document.getElementById('adminPanel').style.display = 'block';
+  } catch (e) {
+    console.error('[LOAD ME ERR]', e);
+    toast(t('error') + ' — reload please', 3000);
+  }
+}
+
+/* ---------- 5-TAP SECRET ADMIN TRIGGER ---------- */
+let tapCount = 0;
+let tapTimer = null;
+function attachSecretTrigger() {
+  const title = document.getElementById('profileTitle');
+  if (!title) return;
+  title.style.cursor = 'pointer';
+  title.addEventListener('click', () => {
+    tapCount++;
+    if (tapTimer) clearTimeout(tapTimer);
+    tapTimer = setTimeout(() => { tapCount = 0; }, 1500);
+    if (tapCount >= 5) {
+      tapCount = 0;
+      haptic('success');
+      document.getElementById('adminPanel').style.display = 'block';
+      toast('👑 Admin unlocked (local mode)', 2200);
+    }
+  });
+}
+
+function bindEvents() {
+  try {
+    document.getElementById('spinBtn').addEventListener('click', doSpin);
+    document.getElementById('copyRefBtn').addEventListener('click', copyRef);
+    document.getElementById('shareRefBtn').addEventListener('click', shareRef);
+    document.getElementById('dailyCard').addEventListener('click', openDailyModal);
+    document.getElementById('giftCard').addEventListener('click', openGiftModal);
+    document.getElementById('withdrawBtn').addEventListener('click', openWithdrawModal);
+    document.getElementById('adminOpenBtn').addEventListener('click', openAdminPanel);
+    document.getElementById('channelJoinBtn').addEventListener('click', channelJoinFlow);
+    document.getElementById('milestoneOkBtn').addEventListener('click', () => {
+      document.getElementById('milestoneModal').classList.remove('open');
+    });
+    document.getElementById('penaltyOkBtn').addEventListener('click', () => {
+      document.getElementById('penaltyModal').classList.remove('open');
+    });
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab')));
+    });
+    document.getElementById('langToggle').addEventListener('click', () => {
+      try {
+        state.lang = state.lang === 'am' ? 'en' : 'am';
+        haptic('light');
+        applyI18n();
+        updateRefLink();
+        updateDailyTimer();
+      } catch (e) { console.error('[LANG TOGGLE ERR]', e); }
+    });
+    attachSecretTrigger();
+  } catch (e) { console.error('[BIND EVENTS ERR]', e); }
+}
+
+async function boot() {
+  try {
+    initTelegram();
+    bindEvents();
+    await loadConfig();
+    initAdsgram();
+    applyI18n();
+    await loadMe();
+    updateRefLink();
+    drawWheel(state.wheelRotation);
+    updateDailyTimer();
+    if (state.dailyTimerInterval) clearInterval(state.dailyTimerInterval);
+    state.dailyTimerInterval = setInterval(updateDailyTimer, 1000);
+    if (state.refreshTimer) clearInterval(state.refreshTimer);
+    state.refreshTimer = setInterval(async () => {
+      try {
+        const res = await api('/api/auth', {}, 'GET');
+        state.user = res.user;
+        updateHeader();
+      } catch (e) {}
+    }, 45000);
+    /* Show a small status pill */
+    setTimeout(() => {
+      if (state.isOffline) toast(t('offlineMode'), 3200);
+    }, 1200);
+  } catch (e) {
+    console.error('[BOOT ERR]', e);
+    toast('⚠️ App initialization issue — please reload', 3200);
+  }
+}
+
+/* Expose for inline handlers */
+window.closeModal = closeModal;
+window.switchTab = switchTab;
+window.watchAdTask = watchAdTask;
+window.adminApprove = adminApprove;
+window.adminReject = adminReject;
+window.doSpin = doSpin;
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', boot);
+} else {
+  boot();
+}
+</script>
+</body>
+</html>
