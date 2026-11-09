@@ -3,6 +3,7 @@ const path = require('path');
 const crypto = require('crypto');
 const express = require('express');
 const TelegramBot = require('node-telegram-bot-api');
+let bot = null;
 
 /* ============================================================================
  *  EARNCRAFT PRO — COMPLETE BACKEND
