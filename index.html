@@ -8,14 +8,15 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-<script src="https://richinfo.co"></script>
-<script>
-  window.TelegramAdsController = new TelegramAdsController();
-  window.TelegramAdsController.initialize({
-    pubId: "1028540",
-    appId: "9610",
-  });
-</script>
+
+          <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
+          <script>
+            window.TelegramAdsController = new TelegramAdsController();
+            window.TelegramAdsController.initialize({
+              pubId: "1028540",
+              appId: "9610",
+            });
+          </script>
 
 <style>
   :root {
@@ -1540,23 +1541,18 @@ async function watchAdTask(taskNumber) {
     }
     haptic('medium');
 
-    const showAd = () => {
+       const showAd = () => {
       return new Promise((resolve, reject) => {
-        if (window.TelegramAdsController && !state.isOffline) {
+        if (window.TelegramAdsController) {
           window.TelegramAdsController.triggerInterstitialVideo()
             .then(() => resolve())
             .catch((e) => reject(e));
         } else {
-          const delay = 800 + Math.random() * 700;
-          setTimeout(() => {
-            const skipChance = 0.1;
-            if (Math.random() < skipChance) reject(new Error('AD_SKIPPED'));
-            else resolve();
-          }, delay);
+          reject(new Error('AD_NOT_READY'));
         }
       });
     };
- 
+
 
     try {
       await showAd();
