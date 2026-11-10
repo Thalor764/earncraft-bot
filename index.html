@@ -8,7 +8,15 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-<script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+<script src="https://richinfo.co"></script>
+<script>
+  window.TelegramAdsController = new TelegramAdsController();
+  window.TelegramAdsController.initialize({
+    pubId: "1028540",
+    appId: "9610",
+  });
+</script>
+
 <style>
   :root {
     --bg: #120624;
@@ -1516,19 +1524,14 @@ function renderTaskList() {
 /* ---------- ADSGRAM ---------- */
 function initAdsgram() {
   try {
-    if (!state.config.adsgramBlockId) {
-      console.warn('[ADSGRAM] No block ID configured — offline mock will be used');
-      return;
+    if (window.TelegramAdsController) {
+      state.adController = window.TelegramAdsController;
     }
-    if (!window.Adsgram) {
-      console.warn('[ADSGRAM] SDK not loaded — offline mock will be used');
-      return;
-    }
-    state.adController = window.Adsgram.init({ blockId: String(state.config.adsgramBlockId) });
   } catch (e) {
-    console.error('[ADSGRAM INIT ERR]', e);
+    console.error('[RICHADS INIT ERR]', e);
   }
 }
+
 
 async function watchAdTask(taskNumber) {
   try {
@@ -1539,8 +1542,10 @@ async function watchAdTask(taskNumber) {
 
     const showAd = () => {
       return new Promise((resolve, reject) => {
-        if (state.adController && !state.isOffline) {
-          state.adController.show().then(() => resolve()).catch((e) => reject(e));
+        if (window.TelegramAdsController && !state.isOffline) {
+          window.TelegramAdsController.triggerInterstitialVideo()
+            .then(() => resolve())
+            .catch((e) => reject(e));
         } else {
           const delay = 800 + Math.random() * 700;
           setTimeout(() => {
@@ -1551,6 +1556,7 @@ async function watchAdTask(taskNumber) {
         }
       });
     };
+ 
 
     try {
       await showAd();
