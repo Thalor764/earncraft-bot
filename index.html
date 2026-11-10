@@ -1541,15 +1541,22 @@ async function watchAdTask(taskNumber) {
     }
     haptic('medium');
 
-       const showAd = () => {
+           const showAd = () => {
       return new Promise((resolve, reject) => {
-        if (window.TelegramAdsController) {
-          window.TelegramAdsController.triggerInterstitialVideo()
-            .then(() => resolve())
-            .catch((e) => reject(e));
-        } else {
-          reject(new Error('AD_NOT_READY'));
-        }
+        const ctrl = window.TelegramAdsController;
+        if (!ctrl) return reject(new Error('NO_AD_AVAILABLE'));
+
+        ctrl.triggerInterstitialVideo()
+          .then(() => resolve())
+          .catch(() => {
+            if (ctrl.triggerInterstitialBanner) {
+              ctrl.triggerInterstitialBanner()
+                .then(() => resolve())
+                .catch(() => reject(new Error('NO_AD_AVAILABLE')));
+            } else {
+              reject(new Error('NO_AD_AVAILABLE'));
+            }
+          });
       });
     };
 
