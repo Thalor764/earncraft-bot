@@ -20,7 +20,7 @@ const CONFIG = {
   BOT_USERNAME: 'EarnCraftEtBot',
 WEBAPP_URL: ' https://earncraft-bot.onrender.com',
  ADMIN_TELEGRAM_ID: '6431033307',
-  ADSGRAM_BLOCK_ID: '58886',
+  ADSGRAM_BLOCK_ID: ' 55618',
   PORT: process.env.PORT || 3000,
   // ---- Official channel join reward ----
   OFFICIAL_CHANNEL_URL: 'https://t.me/EarnCraftProOfficial',
