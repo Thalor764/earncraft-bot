@@ -1541,16 +1541,16 @@ async function watchAdTask(taskNumber) {
     }
     haptic('medium');
 
-           const showAd = () => {
+    const showAd = () => {
       return new Promise((resolve, reject) => {
         const ctrl = window.TelegramAdsController;
         if (!ctrl) return reject(new Error('NO_AD_AVAILABLE'));
 
-        ctrl.triggerInterstitialVideo()
+        ctrl.triggerInterstitialMixed()
           .then(() => resolve())
           .catch(() => {
-            if (ctrl.triggerInterstitialBanner) {
-              ctrl.triggerInterstitialBanner()
+            if (ctrl.triggerNativeAds) {
+              ctrl.triggerNativeAds(true)
                 .then(() => resolve())
                 .catch(() => reject(new Error('NO_AD_AVAILABLE')));
             } else {
@@ -1568,6 +1568,7 @@ async function watchAdTask(taskNumber) {
         state.user.tickets = res.newTickets;
         state.user.completedTasksToday = res.completedTasksToday;
         state.user.totalTasksCompleted = (state.user.totalTasksCompleted || 0) + 1;
+                
         updateHeader();
       }
       haptic('success');
