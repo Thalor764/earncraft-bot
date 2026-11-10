@@ -1541,10 +1541,8 @@ async function watchAdTask(taskNumber) {
     }
     haptic('medium');
 
-    const showAd = () => {
-      return new Promise((resolve, reject) => {
-        if (state.adController && !state.isOffline) {
-          state.adController.show().then(() => resolve()).catch((e) => reject(e));
+    
+    
       const showAd = () => {
   return new Promise((resolve, reject) => {
     if (window.TelegramAdsController && !state.isOffline) {
