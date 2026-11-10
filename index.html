@@ -1559,6 +1559,7 @@ async function watchAdTask(taskNumber) {
     }
   });
 };
+    await showAd();
     const res = await api('/api/tasks/watch', { taskNumber });
 
       if (state.user) {
