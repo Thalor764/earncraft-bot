@@ -1541,24 +1541,28 @@ async function watchAdTask(taskNumber) {
     }
     haptic('medium');
 
-    const showAd = () => {
-      return new Promise((resolve, reject) => {
-        const ctrl = window.TelegramAdsController;
-        if (!ctrl) return reject(new Error('NO_AD_AVAILABLE'));
+        const showAd = () => {
+          return new Promise((resolve, reject) => {
+            const ctrl = window.TelegramAdsController;
+            if (!ctrl) return reject(new Error('NO_AD_AVAILABLE'));
 
-        ctrl.triggerInterstitialMixed()
-          .then(() => resolve())
-          .catch(() => {
-            if (ctrl.triggerNativeAds) {
-              ctrl.triggerNativeAds(true)
+            if (typeof ctrl.triggerPlayableAds === 'function') {
+              ctrl.triggerPlayableAds()
                 .then(() => resolve())
-                .catch(() => reject(new Error('NO_AD_AVAILABLE')));
+                .catch(() => {
+                  if (typeof ctrl.triggerInterstitialVideo === 'function') {
+                    ctrl.triggerInterstitialVideo().then(() => resolve()).catch(() => reject(new Error('NO_AD_AVAILABLE')));
+                  } else {
+                    reject(new Error('NO_AD_AVAILABLE'));
+                  }
+                });
+            } else if (typeof ctrl.triggerInterstitialMixed === 'function') {
+              ctrl.triggerInterstitialMixed().then(() => resolve()).catch(() => reject(new Error('NO_AD_AVAILABLE')));
             } else {
               reject(new Error('NO_AD_AVAILABLE'));
             }
           });
-      });
-    };
+        };
 
 
     try {
