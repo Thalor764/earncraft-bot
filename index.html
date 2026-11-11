@@ -9,15 +9,15 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
+         
           <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
           <script>
             window.TelegramAdsController = new TelegramAdsController();
             window.TelegramAdsController.initialize({
               pubId: "1028540",
-              appId: "9610",
+              appId: "9618",
             });
           </script>
-
 <style>
   :root {
     --bg: #120624;
@@ -1541,28 +1541,30 @@ async function watchAdTask(taskNumber) {
     }
     haptic('medium');
 
-        const showAd = () => {
+       
+                const showAd = () => {
           return new Promise((resolve, reject) => {
             const ctrl = window.TelegramAdsController;
             if (!ctrl) return reject(new Error('NO_AD_AVAILABLE'));
 
-            if (typeof ctrl.triggerPlayableAds === 'function') {
-              ctrl.triggerPlayableAds()
+            if (typeof ctrl.triggerInterstitialVideo === 'function') {
+              ctrl.triggerInterstitialVideo()
                 .then(() => resolve())
                 .catch(() => {
-                  if (typeof ctrl.triggerInterstitialVideo === 'function') {
-                    ctrl.triggerInterstitialVideo().then(() => resolve()).catch(() => reject(new Error('NO_AD_AVAILABLE')));
+                  if (typeof ctrl.triggerInterstitialBanner === 'function') {
+                    ctrl.triggerInterstitialBanner().then(() => resolve()).catch(() => reject(new Error('NO_AD_AVAILABLE')));
                   } else {
                     reject(new Error('NO_AD_AVAILABLE'));
                   }
                 });
-            } else if (typeof ctrl.triggerInterstitialMixed === 'function') {
-              ctrl.triggerInterstitialMixed().then(() => resolve()).catch(() => reject(new Error('NO_AD_AVAILABLE')));
+            } else if (typeof ctrl.triggerInterstitialBanner === 'function') {
+              ctrl.triggerInterstitialBanner().then(() => resolve()).catch(() => reject(new Error('NO_AD_AVAILABLE')));
             } else {
               reject(new Error('NO_AD_AVAILABLE'));
             }
           });
         };
+
 
 
     try {
