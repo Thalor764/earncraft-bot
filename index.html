@@ -9,15 +9,14 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
-         
-          <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
-          <script>
-            window.TelegramAdsController = new TelegramAdsController();
-            window.TelegramAdsController.initialize({
-              pubId: "1028540",
-              appId: "9618",
-            });
-          </script>
+<script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
+<script>
+  window.TelegramAdsController = new TelegramAdsController();
+  window.TelegramAdsController.initialize({
+    pubId: "1028540",
+    appId: "9618",
+  });
+</script>
 <style>
   :root {
     --bg: #120624;
@@ -313,11 +312,10 @@
     <div class="glass p-4 mb-3">
       <div class="flex items-center justify-between mb-2">
         <div class="font-bold text-sm" data-i18n="tasksToday">የዛሬ ተግባራት</div>
-        <div class="font-extrabold gold-text"><span id="tasksDone">0</span> / 100</div>
+        <div class="font-extrabold gold-text"><span id="tasksDone">0</span> / 15</div>
       </div>
       <div class="progress-track mb-2"><div id="tasksProgress" class="progress-fill" style="width:0%"></div></div>
       <div class="text-[11px]" style="color: var(--muted);" data-i18n="tasksReset">በየ24 ሰዓቱ ዳግም ይጀምራል</div>
-      <div class="text-[11px] mt-1" id="penaltyInfo" style="color: #ef4444; display:none;"></div>
     </div>
 
     <div id="taskList"></div>
@@ -387,7 +385,6 @@
         <div class="flex justify-between"><span style="color:var(--muted);" data-i18n="totalTasks">ጠቅላላ ተግባራት</span><span id="statTotalTasks" class="font-bold">0</span></div>
         <div class="flex justify-between"><span style="color:var(--muted);" data-i18n="totalRefs">ጠቅላላ ጓደኞች</span><span id="statTotalRefs" class="font-bold">0</span></div>
         <div class="flex justify-between"><span style="color:var(--muted);" data-i18n="tickets">ቲኬቶች</span><span id="statTickets" class="font-bold">0</span></div>
-        <div class="flex justify-between"><span style="color:var(--muted);" data-i18n="penaltyTasks">ቅጣት ተግባራት</span><span id="statPenalty" class="font-bold" style="color:#ef4444;">0</span></div>
       </div>
     </div>
 
@@ -406,7 +403,7 @@
   <nav id="bottomNav">
     <button class="nav-btn active" data-tab="spin"><span class="icon">🎡</span><span data-i18n="navSpin">አሽከርክር</span></button>
     <button class="nav-btn" data-tab="tasks"><span class="icon">🎬</span><span data-i18n="navTasks">ተግባራት</span></button>
-    <button class="nav-btn" data-tab="team"><span class="icon">👥</span><span data-i18n="navTeam">ቡና</span></button>
+    <button class="nav-btn" data-tab="team"><span class="icon">👥</span><span data-i18n="navTeam">ቡድን</span></button>
     <button class="nav-btn" data-tab="profile"><span class="icon">👤</span><span data-i18n="navProfile">የእኔ</span></button>
   </nav>
 </div>
@@ -421,15 +418,6 @@
     <div class="text-2xl font-extrabold gold-text mb-2" data-i18n="milestoneTitle">ሚልስቶን ተሳክቷል!</div>
     <div class="text-sm mb-4" style="color: var(--muted);" id="milestoneMsg">+5 ተጨማሪ የማሽከርከሪያ ቲኬቶች ተሸልመዋል!</div>
     <button id="milestoneOkBtn" class="btn-gold w-full" data-i18n="ok">እሺ</button>
-  </div>
-</div>
-
-<div id="penaltyModal" class="modal-overlay">
-  <div class="modal-box text-center">
-    <div class="text-6xl mb-2">⚠️</div>
-    <div class="text-2xl font-extrabold mb-2" style="color:#ef4444;" data-i18n="penaltyTitle">ማስታወቂያውን አቋርጠዋል!</div>
-    <div class="text-sm mb-4" style="color: var(--muted);" id="penaltyMsg">ቅጣት +2 ተጨማሪ ተግባራት ተጨምሮብዎታል።</div>
-    <button id="penaltyOkBtn" class="btn-ghost w-full" data-i18n="ok">እሺ</button>
   </div>
 </div>
 
@@ -449,12 +437,11 @@ const state = {
     minWithdrawEtb: 2000,
     minReferrals: 8,
     minTasks: 50,
-    dailyTaskLimit: 100,
+    dailyTaskLimit: 15,
     officialChannelUrl: 'https://t.me/EarnCraftProOfficial',
     channelJoinRewardEtb: 130,
     milestoneEvery: 10,
     milestoneBonusTickets: 5,
-    penaltyPerSkip: 2,
     referralCommissionPercent: 10
   },
   user: null,
@@ -492,7 +479,6 @@ const I18N = {
     totalTasks: 'ጠቅላላ ተግባራት',
     totalRefs: 'ጠቅላላ ጓደኞች',
     tickets: 'ቲኬቶች',
-    penaltyTasks: 'ቅጣት ተግባራት',
     history: 'የክፍያ ታሪክ',
     noHistory: 'እስካሁን ክፍያ የለም',
     navSpin: 'አሽከርክር',
@@ -520,7 +506,7 @@ const I18N = {
     success: 'ተሳክቷል!',
     successWithdraw: 'የገንዘብ ማውጣት ጥያቄዎ ተቀብሏል። በቅርቡ ይገምገማል።',
     error: 'ስህተት',
-    adNotCompleted: 'ማስታወቂያው አልተጠናቀቀም ወይም አሁን አልተገኘም፤ እባክዎ እንደገና ይሞክሩ',
+    adNotCompleted: 'አሁን ማስታወቂያ አልተገኘም፣ እባክዎ ቆይተው እንደገና ይሞክሩ።',
     noTickets: 'ቲኬት የለም',
     noTicketsMsg: 'ማስታወቂያ በመመልከት ወይም ጓደኛ በመጋበዝ ተጨማሪ ቲኬት ያግኙ።',
     congrats: 'እንኳን ደስ አለዎት!',
@@ -532,7 +518,7 @@ const I18N = {
     pending: 'በመጠባበቅ ላይ',
     approved: 'ተከፍሏል',
     rejected: 'ተሰርዟል',
-    adWatch: ' adWatch (+1 🎟️)',
+    adWatch: 'ማስታወቂያ ተመልከት (+1 🎟️)',
     taskDone: 'ተጠናቋል ✓',
     locked: 'ተቆልፏል',
     adminTitle: '👑 Admin Dashboard',
@@ -562,8 +548,6 @@ const I18N = {
     milestoneTitle: 'ሚልስቶን ተሳክቷል!',
     milestoneMsg: '+5 ተጨማሪ የማሽከርከሪያ ቲኬቶች ተሸልመዋል!',
     ok: 'እሺ',
-    penaltyTitle: 'ማስታወቂያውን አቋርጠዋል!',
-    penaltyMsg: 'ቅጣት +2 ተጨማሪ ተግባራት ተጨምሮብዎታል።',
     paypal: 'PayPal',
     btc: 'Bitcoin (BTC)',
     noAccess: 'መዳረሻ አልተፈቀደም',
@@ -594,7 +578,6 @@ const I18N = {
     totalTasks: 'Total Tasks',
     totalRefs: 'Total Referrals',
     tickets: 'Tickets',
-    penaltyTasks: 'Penalty Tasks',
     history: 'Transaction History',
     noHistory: 'No transactions yet',
     navSpin: 'Spin',
@@ -622,7 +605,7 @@ const I18N = {
     success: 'Success!',
     successWithdraw: 'Withdrawal request submitted. It will be reviewed shortly.',
     error: 'Error',
-    adNotCompleted: 'Ad was not completed or unavailable, please try again.',
+    adNotCompleted: 'No ad available right now, please try again later.',
     noTickets: 'No tickets',
     noTicketsMsg: 'Watch ads or invite friends to earn more tickets.',
     congrats: 'Congratulations!',
@@ -664,8 +647,6 @@ const I18N = {
     milestoneTitle: 'Milestone Reached!',
     milestoneMsg: '+5 bonus spin tickets awarded!',
     ok: 'OK',
-    penaltyTitle: 'Ad Skipped!',
-    penaltyMsg: '+2 penalty tasks added.',
     paypal: 'PayPal',
     btc: 'Bitcoin (BTC)',
     noAccess: 'Access denied',
@@ -693,7 +674,6 @@ function loadOffline() {
       const parsed = JSON.parse(raw);
       if (parsed.dateKey !== todayKey()) {
         parsed.completedTasksToday = 0;
-        parsed.penaltyTasks = 0;
         parsed.dateKey = todayKey();
         localStorage.setItem(state.offlineKey, JSON.stringify(parsed));
       }
@@ -708,7 +688,6 @@ function loadOffline() {
     tickets: 3,
     completedTasksToday: 0,
     totalTasksCompleted: 0,
-    penaltyTasks: 0,
     channelJoinClaimed: false,
     commissionEarned: 0,
     milestoneClaimedUpTo: 0,
@@ -753,7 +732,6 @@ function offlineUserPub(d) {
     tickets: d.tickets,
     completedTasksToday: d.completedTasksToday,
     totalTasksCompleted: d.totalTasksCompleted,
-    penaltyTasks: d.penaltyTasks,
     channelJoinClaimed: d.channelJoinClaimed,
     commissionEarned: Math.round(d.commissionEarned * 100) / 100,
     milestoneClaimedUpTo: d.milestoneClaimedUpTo,
@@ -813,12 +791,11 @@ function offlineMock(path, body, method) {
       minWithdrawEtb: 2000,
       minReferrals: 8,
       minTasks: 50,
-      dailyTaskLimit: 100,
+      dailyTaskLimit: 15,
       officialChannelUrl: 'https://t.me/EarnCraftProOfficial',
       channelJoinRewardEtb: 130,
       milestoneEvery: 10,
-      milestoneBonusTickets: 5,
-      penaltyPerSkip: 2
+      milestoneBonusTickets: 5
     };
   }
   if (path === '/api/auth') {
@@ -858,6 +835,11 @@ function offlineMock(path, body, method) {
       e.code = 'OUT_OF_ORDER';
       throw e;
     }
+    if (d.completedTasksToday >= 15) {
+      const e = new Error('DAILY_LIMIT_REACHED');
+      e.code = 'DAILY_LIMIT_REACHED';
+      throw e;
+    }
     d.completedTasksToday += 1;
     d.totalTasksCompleted += 1;
     d.tickets += 1;
@@ -876,11 +858,6 @@ function offlineMock(path, body, method) {
       milestoneBonus,
       milestoneReached: milestoneBonus > 0 ? taskNumber : 0
     };
-  }
-  if (path === '/api/tasks/penalty') {
-    d.penaltyTasks = (d.penaltyTasks || 0) + 2;
-    saveOffline(d);
-    return { ok: true, penaltyTasks: d.penaltyTasks, addedPenalty: 2 };
   }
   if (path === '/api/daily/claim') {
     if (d.lastDailyClaimAt) {
@@ -937,25 +914,6 @@ function offlineMock(path, body, method) {
   }
   if (path === '/api/withdrawals') {
     return { ok: true, withdrawals: d.withdrawals || [] };
-  }
-  if (path === '/api/withdraw/eligibility') {
-    const minW = 2000, minR = 8, minT = 50;
-    const okBal = d.balance >= minW;
-    const okRefs = d.referralCount >= minR;
-    const okTasks = d.totalTasksCompleted >= minT;
-    const noPenalty = (d.penaltyTasks || 0) === 0;
-    return {
-      ok: true,
-      minWithdrawEtb: minW,
-      minReferrals: minR,
-      minTasks: minT,
-      balance: d.balance,
-      referralCount: d.referralCount,
-      totalTasks: d.totalTasksCompleted,
-      penaltyTasks: d.penaltyTasks || 0,
-      canWithdraw: okBal && okRefs && okTasks && noPenalty,
-      conditions: { balance: okBal, referrals: okRefs, tasks: okTasks, noPenalty }
-    };
   }
   if (path === '/api/withdraw') {
     const amount = Number(body.amount || 0);
@@ -1018,9 +976,6 @@ function offlineMock(path, body, method) {
         createdAt: w.createdAt
       }))
     };
-  }
-  if (path === '/api/admin/withdrawals/' && path.endsWith('/approve')) {
-    return { ok: true };
   }
   if (path.includes('/api/admin/withdrawals/') && path.endsWith('/approve')) {
     const id = Number(path.split('/')[4]);
@@ -1218,19 +1173,9 @@ function updateHeader() {
   document.getElementById('statTotalTasks').textContent = u.totalTasksCompleted;
   document.getElementById('statTotalRefs').textContent = u.referralCount;
   document.getElementById('statTickets').textContent = u.tickets;
-  document.getElementById('statPenalty').textContent = u.penaltyTasks || 0;
   document.getElementById('tasksDone').textContent = u.completedTasksToday;
-  document.getElementById('tasksProgress').style.width = Math.min(100, (u.completedTasksToday / 100) * 100) + '%';
+  document.getElementById('tasksProgress').style.width = Math.min(100, (u.completedTasksToday / 15) * 100) + '%';
   document.getElementById('adminPanel').style.display = u.isAdmin ? 'block' : 'none';
-  const pi = document.getElementById('penaltyInfo');
-  if (pi) {
-    if (u.penaltyTasks > 0) {
-      pi.style.display = 'block';
-      pi.textContent = `⚠️ ${u.penaltyTasks} ${state.lang === 'am' ? 'ቅጣት ተግባራት ቀርተዋል' : 'penalty tasks remaining'}`;
-    } else {
-      pi.style.display = 'none';
-    }
-  }
   updateChannelCard();
 }
 
@@ -1485,7 +1430,7 @@ function renderTaskList() {
   if (!u) { container.innerHTML = ''; return; }
   const done = u.completedTasksToday;
   let html = '';
-  for (let i = 1; i <= 100; i++) {
+  for (let i = 1; i <= 15; i++) {
     if (i <= done) {
       html += `<div class="task-card done">
         <div class="flex items-center gap-2">
@@ -1522,7 +1467,7 @@ function renderTaskList() {
   container.innerHTML = html;
 }
 
-/* ---------- ADSGRAM ---------- */
+/* ---------- RICHADS ---------- */
 function initAdsgram() {
   try {
     if (window.TelegramAdsController) {
@@ -1533,48 +1478,56 @@ function initAdsgram() {
   }
 }
 
+function showRichAdsInterstitial() {
+  return new Promise((resolve, reject) => {
+    const ctrl = window.TelegramAdsController;
+    if (!ctrl) return reject(new Error('NO_AD_AVAILABLE'));
+
+    const tryBanner = () => {
+      if (typeof ctrl.triggerInterstitialBanner === 'function') {
+        ctrl.triggerInterstitialBanner()
+          .then(() => resolve())
+          .catch(() => reject(new Error('NO_AD_AVAILABLE')));
+      } else {
+        reject(new Error('NO_AD_AVAILABLE'));
+      }
+    };
+
+    if (typeof ctrl.triggerInterstitialVideo === 'function') {
+      ctrl.triggerInterstitialVideo()
+        .then(() => resolve())
+        .catch(() => tryBanner());
+    } else {
+      tryBanner();
+    }
+  });
+}
 
 async function watchAdTask(taskNumber) {
   try {
-    if (state.user && state.user.tickets !== undefined) {
-      ensureAudio();
-    }
+    ensureAudio();
     haptic('medium');
 
-       
-                const showAd = () => {
-          return new Promise((resolve, reject) => {
-            const ctrl = window.TelegramAdsController;
-            if (!ctrl) return reject(new Error('NO_AD_AVAILABLE'));
+    let adShown = false;
+    try {
+      await showRichAdsInterstitial();
+      adShown = true;
+    } catch (adErr) {
+      adShown = false;
+    }
 
-            if (typeof ctrl.triggerInterstitialVideo === 'function') {
-              ctrl.triggerInterstitialVideo()
-                .then(() => resolve())
-                .catch(() => {
-                  if (typeof ctrl.triggerInterstitialBanner === 'function') {
-                    ctrl.triggerInterstitialBanner().then(() => resolve()).catch(() => reject(new Error('NO_AD_AVAILABLE')));
-                  } else {
-                    reject(new Error('NO_AD_AVAILABLE'));
-                  }
-                });
-            } else if (typeof ctrl.triggerInterstitialBanner === 'function') {
-              ctrl.triggerInterstitialBanner().then(() => resolve()).catch(() => reject(new Error('NO_AD_AVAILABLE')));
-            } else {
-              reject(new Error('NO_AD_AVAILABLE'));
-            }
-          });
-        };
-
-
+    if (!adShown) {
+      haptic('warning');
+      toast(t('adNotCompleted'), 2600);
+      return;
+    }
 
     try {
-      await showAd();
       const res = await api('/api/tasks/complete', { taskNumber });
       if (state.user) {
         state.user.tickets = res.newTickets;
         state.user.completedTasksToday = res.completedTasksToday;
         state.user.totalTasksCompleted = (state.user.totalTasksCompleted || 0) + 1;
-                
         updateHeader();
       }
       haptic('success');
@@ -1589,27 +1542,12 @@ async function watchAdTask(taskNumber) {
         setTimeout(() => showMilestone(res.milestoneReached, res.milestoneBonus), 400);
       }
     } catch (err) {
-      if (err && (err.code === 'OUT_OF_ORDER' || err.code === 'DAILY_LIMIT_REACHED')) {
-        haptic('error');
-        toast(t('error') + ': ' + err.code, 2400);
-        return;
-      }
-      /* Penalty for ad skip */
       haptic('error');
-      playError();
-      try {
-        const pres = await api('/api/tasks/penalty', {});
-        if (state.user) state.user.penaltyTasks = pres.penaltyTasks;
-        updateHeader();
-      } catch (e) {}
-      const pmsg = document.getElementById('penaltyMsg');
-      if (pmsg) {
-        pmsg.textContent = state.lang === 'am'
-          ? 'ቅጣት +2 ተጨማሪ ተግባራት ተጨምሮብዎታል።'
-          : '+2 penalty tasks added.';
+      if (err && (err.code === 'OUT_OF_ORDER' || err.code === 'DAILY_LIMIT_REACHED')) {
+        toast(t('error') + ': ' + err.code, 2400);
+      } else {
+        toast(t('error') + ': ' + (err.code || 'TASK'), 2400);
       }
-      document.getElementById('penaltyModal').classList.add('open');
-      renderTaskList();
     }
   } catch (e) {
     console.error('[WATCH AD ERR]', e);
@@ -1938,20 +1876,19 @@ function openWithdrawModal() {
     const minW = Number(state.config.minWithdrawEtb) || 2000;
     const minR = Number(state.config.minReferrals) || 8;
     const minT = Number(state.config.minTasks) || 50;
-    const penalty = u.penaltyTasks || 0;
 
     const okBal = Number(u.balance) >= minW;
     const okR = (u.referralCount || 0) >= minR;
-    const okT = (u.totalTasksCompleted || 0) >= minT && penalty === 0;
+    const okT = (u.totalTasksCompleted || 0) >= minT;
     const canWithdraw = okBal && okR && okT;
 
-    function row(ok, label, value, extra) {
+    function row(ok, label, value) {
       return `<div class="cond-row">
         <div class="flex items-center gap-2">
           <span style="font-size:18px;">${ok ? '✅' : '❌'}</span>
           <span class="text-sm">${label}</span>
         </div>
-        <span class="text-xs font-bold" style="color:${ok ? '#22c55e' : '#ef4444'}">${value}${extra || ''}</span>
+        <span class="text-xs font-bold" style="color:${ok ? '#22c55e' : '#ef4444'}">${value}</span>
       </div>`;
     }
 
@@ -1965,7 +1902,7 @@ function openWithdrawModal() {
         <div class="mb-4">
           ${row(okBal, t('reqBalance'), `ETB ${Number(u.balance).toFixed(2)} / ${minW}`)}
           ${row(okR, t('reqRefs'), `${u.referralCount || 0} / ${minR}`)}
-          ${row(okT, t('reqTasks'), `${u.totalTasksCompleted || 0} / ${minT}`, penalty > 0 ? ` (+${penalty} ${state.lang === 'am' ? 'ቅጣት' : 'penalty'})` : '')}
+          ${row(okT, t('reqTasks'), `${u.totalTasksCompleted || 0} / ${minT}`)}
         </div>
         <div class="mb-3">
           <label class="input-label">${t('paymentMethod')}</label>
@@ -2240,12 +2177,11 @@ async function loadConfig() {
         minWithdrawEtb: res.minWithdrawEtb || 2000,
         minReferrals: res.minReferrals || 8,
         minTasks: res.minTasks || 50,
-        dailyTaskLimit: res.dailyTaskLimit || 100,
+        dailyTaskLimit: 15,
         officialChannelUrl: res.officialChannelUrl || state.config.officialChannelUrl,
         channelJoinRewardEtb: res.channelJoinRewardEtb || 130,
         milestoneEvery: res.milestoneEvery || 10,
-        milestoneBonusTickets: res.milestoneBonusTickets || 5,
-        penaltyPerSkip: res.penaltyPerSkip || 2
+        milestoneBonusTickets: res.milestoneBonusTickets || 5
       };
     }
   } catch (e) {
@@ -2304,9 +2240,6 @@ function bindEvents() {
     document.getElementById('milestoneOkBtn').addEventListener('click', () => {
       document.getElementById('milestoneModal').classList.remove('open');
     });
-    document.getElementById('penaltyOkBtn').addEventListener('click', () => {
-      document.getElementById('penaltyModal').classList.remove('open');
-    });
     document.querySelectorAll('.nav-btn').forEach(btn => {
       btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab')));
     });
@@ -2344,7 +2277,6 @@ async function boot() {
         updateHeader();
       } catch (e) {}
     }, 45000);
-    /* Show a small status pill */
     setTimeout(() => {
       if (state.isOffline) toast(t('offlineMode'), 3200);
     }, 1200);
