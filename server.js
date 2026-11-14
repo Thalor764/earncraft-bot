@@ -24,7 +24,7 @@ WEBAPP_URL: ' https://earncraft-bot.onrender.com',
   PORT: process.env.PORT || 3000,
   // ---- Official channel join reward ----
   OFFICIAL_CHANNEL_URL: 'https://t.me/EarnCraft_Pro',
-  OFFICIAL_CHANNEL_ID: '@EarnCraftProOfficial',
+  OFFICIAL_CHANNEL_ID: '@EarnCraft_Pro',
   CHANNEL_JOIN_REWARD_ETB: 130,
   // ---- Withdrawal / milestone rules ----
   MIN_WITHDRAW_ETB: 2000,
