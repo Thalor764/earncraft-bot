@@ -35,7 +35,7 @@ WEBAPP_URL: ' https://earncraft-bot.onrender.com',
   MILESTONE_BONUS_TICKETS: 5,
   // ---- Anti-skip penalty ----
   PENALTY_PER_SKIP: 2,
-  
+};
 
   // ---- Misc ----
   DAILY_TASK_LIMIT: 100,
