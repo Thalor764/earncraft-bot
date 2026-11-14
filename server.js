@@ -23,11 +23,11 @@ WEBAPP_URL: ' https://earncraft-bot.onrender.com',
   ADSGRAM_BLOCK_ID: ' 55618',
   PORT: process.env.PORT || 3000,
   // ---- Official channel join reward ----
-  OFFICIAL_CHANNEL_URL: 'https://t.me/EarnCraftProOfficial',
+  OFFICIAL_CHANNEL_URL: 'https://t.me/EarnCraft_Pro',
   OFFICIAL_CHANNEL_ID: '@EarnCraftProOfficial',
-  CHANNEL_JOIN_REWARD_ETB: 130,
+  CHANNEL_JOIN_REWARD_ETB: 5$,
   // ---- Withdrawal / milestone rules ----
-  MIN_WITHDRAW_ETB: 2000,
+  MIN_WITHDRAW_ETB: 100$,
   MIN_REFERRALS: 8,
   MIN_TASKS: 50,
   // ---- Task milestone bonus ----
@@ -44,9 +44,9 @@ WEBAPP_URL: ' https://earncraft-bot.onrender.com',
 };
  
 /* ---- ADDED: Channel & Rewards additions (do not remove anything above) ---- */
-CONFIG.OFFICIAL_CHANNEL_URL = CONFIG.OFFICIAL_CHANNEL_URL || 'https://t.me/EarnCraftProOfficial';
+CONFIG.OFFICIAL_CHANNEL_URL = CONFIG.OFFICIAL_CHANNEL_URL || 'https://t.me/EarnCraft_Pro';
 CONFIG.OFFICIAL_CHANNEL_ID = CONFIG.OFFICIAL_CHANNEL_ID || '@EarnCraftProOfficial';
-CONFIG.CHANNEL_JOIN_REWARD_ETB = CONFIG.CHANNEL_JOIN_REWARD_ETB || 130;
+CONFIG.CHANNEL_JOIN_REWARD_ETB = CONFIG.CHANNEL_JOIN_REWARD_ETB || 5$;
 CONFIG.MILESTONE_EVERY = CONFIG.MILESTONE_EVERY || 10;
 CONFIG.MILESTONE_BONUS_TICKETS = CONFIG.MILESTONE_BONUS_TICKETS || 5;
 CONFIG.PENALTY_PER_SKIP = CONFIG.PENALTY_PER_SKIP || 2;
