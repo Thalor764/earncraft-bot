@@ -16,7 +16,8 @@
     pubId: "1028540",
     appId: "9618",
   });
-</script>
+</script> 
+ <script src='//libtl.com/sdk.js' data-zone='12258309' data-sdk='show_12258309'></script> 
 <style>
   :root {
     --bg: #120624;
@@ -1510,7 +1511,14 @@ async function watchAdTask(taskNumber) {
 
     let adShown = false;
     try {
-      await showRichAdsInterstitial();
+              const adUrl = 'https://uplcm.com/4/12258404';
+        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openLink) {
+          window.Telegram.WebApp.openLink(adUrl);
+        } else {
+          window.open(adUrl, '_blank');
+        }
+        await new Promise(r => setTimeout(r, 5000));
+
       adShown = true;
     } catch (adErr) {
       adShown = false;
