@@ -27,7 +27,7 @@ WEBAPP_URL: ' https://earncraft-bot.onrender.com',
   OFFICIAL_CHANNEL_ID: '@EarnCraftProOfficial',
   CHANNEL_JOIN_REWARD_ETB: 130,
   // ---- Withdrawal / milestone rules ----
-  MIN_WITHDRAW_ETB: 100$,
+  MIN_WITHDRAW_ETB: 2000,
   MIN_REFERRALS: 8,
   MIN_TASKS: 50,
   // ---- Task milestone bonus ----
